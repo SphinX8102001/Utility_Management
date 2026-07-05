@@ -1,0 +1,160 @@
+const Outage = require('../models/outage');
+
+// --- FETCH ALL ACTIVE DISRUPTIONS FOR MAP PLOTTING (FR-01) ---
+const getActiveOutages = async (req, res) => {
+  try {
+    const currentOutages = await Outage.find({ status: { $ne: 'RESOLVED' } });
+    return res.status(200).json(currentOutages);
+  } catch (error) {
+    console.error('Map plotter fetch error:', error);
+    return res.status(500).json({ error: 'Internal server error pulling active incident markers.' });
+  }
+};
+
+// --- SUBMIT NEW OUTAGE COMPLAINT LOGIC ROUTINE (FR-02) ---
+const createOutageReport = async (req, res) => {
+  try {
+    const { 
+      utilityType, 
+      locationName, 
+      latitude, 
+      longitude, 
+      description, 
+      estimatedRestoration, 
+      reporterId, 
+      reporterName 
+    } = req.body;
+
+    if (!utilityType || !locationName || !latitude || !longitude || !description || !reporterId || !reporterName) {
+      return res.status(400).json({ error: 'All fields, including reporter details, are required.' });
+    }
+
+    const newReport = new Outage({
+      utilityType,
+      locationName,
+      latitude: Number(latitude),
+      longitude: Number(longitude),
+      description,
+      status: 'PENDING',
+      estimatedRestoration: estimatedRestoration || 'Pending',
+      reporterId,
+      reporterName
+    });
+
+    await newReport.save();
+
+    return res.status(201).json({
+      message: 'Grid disruption vector mapped and submitted successfully to dispatch queue.',
+      report: newReport
+    });
+
+  } catch (error) {
+    console.error('Complaint submission transaction error:', error);
+    return res.status(500).json({ error: 'Internal system fault recording grid failure report.' });
+  }
+};
+
+// --- DELETE OUTAGE REPORT (FR-03) ---
+const deleteOutageReport = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const report = await Outage.findById(id);
+    if (!report) {
+      return res.status(404).json({ error: 'Report not found.' });
+    }
+
+    await Outage.findByIdAndDelete(id);
+    return res.status(200).json({ message: 'Report deleted successfully.' });
+
+  } catch (error) {
+    console.error('Delete report error:', error);
+    return res.status(500).json({ error: 'Internal server error deleting report.' });
+  }
+};
+
+const assignTechnician = async (req, res) => {
+  try {
+    const { outageId, technicianId, technicianName } = req.body;
+
+    if (!outageId || !technicianId || !technicianName) {
+      return res.status(400).json({ error: 'outageId, technicianId and technicianName are required.' });
+    }
+
+    const updated = await Outage.findByIdAndUpdate(
+      outageId,
+      {
+        assignedTo: technicianId,
+        assignedToName: technicianName,
+        status: 'ASSIGNED'
+      },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ error: 'Outage report not found.' });
+    }
+
+    return res.status(200).json({ message: 'Technician assigned successfully.', report: updated });
+
+  } catch (error) {
+    console.error('Assignment error:', error);
+    return res.status(500).json({ error: 'Internal error assigning technician.' });
+  }
+};
+
+const deleteOutage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deleted = await Outage.findByIdAndDelete(id);
+    if (!deleted) return res.status(404).json({ error: 'Report not found.' });
+    return res.status(200).json({ message: 'Report deleted.' });
+  } catch (error) {
+    console.error('Delete error:', error);
+    return res.status(500).json({ error: 'Internal error deleting report.' });
+  }
+};
+
+const getAssignedTasks = async (req, res) => {
+  try {
+    const { technicianId } = req.params;
+    const tasks = await Outage.find({ assignedTo: technicianId });
+    return res.status(200).json(tasks);
+  } catch (error) {
+    console.error('Task fetch error:', error);
+    return res.status(500).json({ error: 'Internal error fetching tasks.' });
+  }
+};
+
+const resolveOutage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updated = await Outage.findByIdAndUpdate(id, { status: 'RESOLVED' }, { new: true });
+    if (!updated) return res.status(404).json({ error: 'Report not found.' });
+    return res.status(200).json({ message: 'Task marked as resolved.', report: updated });
+  } catch (error) {
+    console.error('Resolve error:', error);
+    return res.status(500).json({ error: 'Internal error resolving task.' });
+  }
+};
+
+const getAllOutages = async (req, res) => {
+  try {
+    const allOutages = await Outage.find({});
+    return res.status(200).json(allOutages);
+  } catch (error) {
+    console.error('All outages fetch error:', error);
+    return res.status(500).json({ error: 'Internal error fetching all outages.' });
+  }
+};
+
+module.exports = {
+  getActiveOutages,
+  createOutageReport,
+  deleteOutageReport,
+  assignTechnician,
+  deleteOutage,
+  getAssignedTasks,  // ← ADD
+  resolveOutage,      // ← ADD
+  getAllOutages       
+};
