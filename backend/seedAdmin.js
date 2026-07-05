@@ -8,7 +8,6 @@ const seedAdminAccount = async () => {
     await mongoose.connect(mongoUri);
     console.log('Seed worker connected to database successfully.');
 
-    // Check if an admin user already occupies the unique username slot
     const existingAdmin = await User.findOne({ username: 'admin' });
 
     if (existingAdmin) {
@@ -20,7 +19,7 @@ const seedAdminAccount = async () => {
         email: 'admin@utilix.com',
         phone: '+8801700000000',
         username: 'admin',
-        password: '123', // Clean plaintext matching your login handler configuration
+        password: '123',
         role: 'admin',
         employeeId: '',
         auditorId: ''
@@ -30,7 +29,6 @@ const seedAdminAccount = async () => {
       console.log('Success: Central Command Manager account seeded successfully!');
     }
 
-    // Safely exit the execution worker
     await mongoose.disconnect();
     console.log('Seed worker disconnected cleanly.');
 

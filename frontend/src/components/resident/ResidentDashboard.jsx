@@ -123,7 +123,6 @@ function ResidentDashboard({ user, onLogout }) {
       });
   };
 
-  // Convert the inline .map logic to an explicit standard loop structure
   const renderedOutageRows = [];
   for (let i = 0; i < outages.length; i++) {
     const outageItem = outages[i];

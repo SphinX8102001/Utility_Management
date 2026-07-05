@@ -17,9 +17,8 @@
   }
 }
 
-/* FIX: Added height constraints for Leaflet map integration */
 .map-wrapper {
-  height: 400px; /* Adjust height as needed for your layout */
+  height: 400px;
   width: 100%;
   position: relative;
 }

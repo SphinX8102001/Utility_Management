@@ -11,8 +11,8 @@ const outageSchema = new mongoose.Schema({
   estimatedRestoration: { type: String, required: true, default: 'Pending' },
   reporterId: { type: String, required: true },
   reporterName: { type: String, required: true },
-  assignedTo: { type: String, default: '' },        // ← ADD THIS
-  assignedToName: { type: String, default: '' },    // ← ADD THIS
+  assignedTo: { type: String, default: '' },        
+  assignedToName: { type: String, default: '' },  
   createdAt: { type: Date, default: Date.now }
 });
 

@@ -39,7 +39,6 @@ const seedDatabase = async () => {
     // Clear out old residual records to start clean
     await Outage.deleteMany({});
     
-    // Explicit array loop insertion
     for (let i = 0; i < sampleOutages.length; i++) {
       const newIncident = new Outage(sampleOutages[i]);
       await newIncident.save();

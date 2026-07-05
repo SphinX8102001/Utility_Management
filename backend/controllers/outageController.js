@@ -154,7 +154,7 @@ module.exports = {
   deleteOutageReport,
   assignTechnician,
   deleteOutage,
-  getAssignedTasks,  // ← ADD
-  resolveOutage,      // ← ADD
+  getAssignedTasks, 
+  resolveOutage,     
   getAllOutages       
 };
