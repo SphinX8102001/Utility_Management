@@ -10,7 +10,8 @@ const userSchema = new mongoose.Schema({
   // ADD THIS LINE:
   address: { type: String, default: 'Not set' }, 
   employeeId: { type: String, default: '' },
-  auditorId: { type: String, default: '' }
+  auditorId: { type: String, default: '' },
+  status: {type: String, enum: ['ON_DUTY', 'OFF_DUTY'], default: 'OFF_DUTY'}
 });
 
 module.exports = mongoose.model('User', userSchema);
