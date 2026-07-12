@@ -160,7 +160,7 @@ function App() {
             Empowering Utilities.
           </h1>
           <p className="text-slate-400 text-sm hidden md:block">
-            Secure multi-role authentication terminal. Automatically routing infrastructure portals.
+            View and Report Utilities Problems at your fingertips at ease.
           </p>
         </div>
 
