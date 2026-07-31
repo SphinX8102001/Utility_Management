@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { PreviewMap, TechFullMap } from './TechMapOverview';
 import { TaskPanel, TechTaskList } from './TechTaskList';
 import { TechForum } from './TechForum';
+// Nusfat: Shift Toggle Import for Duty Status Feature
+import ShiftToggle from './ShiftToggle';
+// Nusfat end
 
 const STATUS_COLORS = {
   PENDING: '#f59e0b',
@@ -271,6 +274,9 @@ function TechnicianDashboard({ user, onLogout }) {
     { key: 'map', label: 'Map View' },
     { key: 'tasks', label: 'My Tasks' },
     { key: 'forum', label: 'Q&A Forum' },
+    //Nusfat: Duty Status Tab
+    { key: 'duty', label: 'Duty Status' },
+    //Nusfat end
   ];
   const renderedNavTabs = [];
   for (let i = 0; i < tabConfig.length; i++) {
@@ -374,6 +380,10 @@ function TechnicianDashboard({ user, onLogout }) {
               handleMarkResolved={handleMarkResolved}
             />
           </div>
+        //Nusfat: Duty Status Tab Content
+        ) : activeTab === 'duty' ? (
+          <ShiftToggle user={user} />
+        //Nusfat end
         ) : (
           <TechForum 
             user={user}
