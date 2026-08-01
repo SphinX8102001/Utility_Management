@@ -50,6 +50,19 @@ function AdminDashboard({ user, onLogout }) {
       alert('Please select a report and a technician.');
       return;
     }
+    //Nusfat: Prevent assigning OFF_DUTY technician
+    let selectedTech = null;
+    for (let i = 0; i < technicians.length; i++) {
+      if (technicians[i]._id === selectedTechId) {
+        selectedTech = technicians[i];
+        break;
+      }
+    }
+    if (selectedTech && selectedTech.status === 'OFF_DUTY') {
+      alert('This technician is OFF DUTY. Please select an ON DUTY technician.');
+      return;
+    }
+    //Nusfat End
 
     let tech = null;
     for (let i = 0; i < technicians.length; i++) {

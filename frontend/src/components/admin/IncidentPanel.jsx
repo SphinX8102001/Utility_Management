@@ -12,15 +12,23 @@ function IncidentPanel({ selectedIncident, setSelectedIncident, technicians, sel
     return <p className="text-xs text-slate-500">Click a pin on the map to view details and assign a technician.</p>;
   }
 
-  const techOptions = [];
-  for (let i = 0; i < technicians.length; i++) {
-    const t = technicians[i];
-    techOptions.push(
-      <option key={t._id} value={t._id}>
-        {t.username} ({t.name})
-      </option>
-    );
-  }
+  //Nusfat: Grey out OFF_DUTY technicians in dropdown
+const techOptions = [];
+for (let i = 0; i < technicians.length; i++) {
+  const t = technicians[i];
+  const isOffDuty = t.status === 'OFF_DUTY';
+  techOptions.push(
+    <option 
+      key={t._id} 
+      value={t._id}
+      disabled={isOffDuty}
+      style={{ color: isOffDuty ? '#4b5563' : 'white' }}
+    >
+      {t.username} ({t.name}) {isOffDuty ? '— OFF DUTY' : ''}
+    </option>
+  );
+}
+//Nusfat End
 
   return (
     <div className="space-y-4">
