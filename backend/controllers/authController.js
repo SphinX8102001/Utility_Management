@@ -174,7 +174,9 @@ const updateProfile = async (req, res) => {
 
 const getTechnicians = async (req, res) => {
   try {
-    const technicians = await User.find({ role: 'technician' }, '_id name username');
+    //Nusfat: Added status field to include duty status
+const technicians = await User.find({ role: 'technician' }, '_id name username status');
+//Nusfat End
     return res.status(200).json(technicians);
   } catch (error) {
     console.error('Technician fetch error:', error);
