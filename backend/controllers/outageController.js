@@ -81,6 +81,17 @@ const assignTechnician = async (req, res) => {
       return res.status(400).json({ error: 'outageId, technicianId and technicianName are required.' });
     }
 
+    //Nusfat: for Checking if technician is ON_DUTY before assigning
+    const User = require('../models/user');
+    const technician = await User.findById(technicianId);
+    if (!technician) {
+      return res.status(404).json({ error: 'Technician not found.' });
+    }
+    if (technician.status === 'OFF_DUTY') {
+      return res.status(400).json({ error: 'Cannot assign task. This technician is currently OFF_DUTY.' });
+    }
+    //Nusfat End
+
     const updated = await Outage.findByIdAndUpdate(
       outageId,
       {
