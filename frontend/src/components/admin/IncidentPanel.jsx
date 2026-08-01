@@ -57,7 +57,7 @@ function IncidentPanel({ selectedIncident, setSelectedIncident, technicians, sel
                 onClick={onAssign} 
                 className="w-full py-2 bg-cyan-600 text-xs font-bold rounded hover:bg-cyan-500"
               >
-                {selectedIncident.assignedToName ? 'REASSIGN_TECHNICIAN' : 'ASSIGN & SET ASSIGNED'}
+                {selectedIncident.assignedToName ? 'REASSIGN TECHNICIAN' : 'ASSIGN & SET ASSIGNED'}
               </button>
             </>
           )}
