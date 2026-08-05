@@ -197,9 +197,10 @@ function AdminDashboard({ user, onLogout }) {
   for (let i = 0; i < filteredOutages.length; i++) {
     const item = filteredOutages[i];
     mapActiveReports.push(
-      <div key={item._id} className="flex justify-between text-xs py-2 border-b border-slate-800 last:border-0">
+      <div key={item._id} className="flex justify-between items-center text-xs py-2 border-b border-slate-800 last:border-0">
         <span className="font-bold text-cyan-400">{item.utilityType}</span>
         <span className="text-slate-400">{item.locationName}</span>
+        <span className="text-[10px] font-bold text-amber-400">👍 {item.upvotes || 0}</span>
         <span style={{ color: STATUS_COLORS[item.status] || '#aaa' }} className="text-[10px] font-bold">{item.status}</span>
       </div>
     );
@@ -215,7 +216,12 @@ function AdminDashboard({ user, onLogout }) {
             <span className="text-cyan-400 text-[10px] font-black uppercase tracking-wider">{item.utilityType}</span>
             <h4 className="text-base font-bold">{item.locationName}</h4>
           </div>
-          <span className="text-[10px] font-bold px-2 py-1 rounded-full" style={{ backgroundColor: (STATUS_COLORS[item.status] || '#aaa') + '22', color: STATUS_COLORS[item.status] || '#aaa' }}>{item.status}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              👍 {item.upvotes || 0} Upvotes
+            </span>
+            <span className="text-[10px] font-bold px-2 py-1 rounded-full" style={{ backgroundColor: (STATUS_COLORS[item.status] || '#aaa') + '22', color: STATUS_COLORS[item.status] || '#aaa' }}>{item.status}</span>
+          </div>
         </div>
         <p className="text-xs text-slate-400 italic mb-3">"{item.description}"</p>
         <div className="flex justify-between items-center text-[10px] text-slate-500">
@@ -240,7 +246,12 @@ function AdminDashboard({ user, onLogout }) {
             <span className="text-cyan-400 text-[10px] font-black uppercase tracking-widest">{item.utilityType}</span>
             <h4 className="text-lg font-bold">{item.locationName}</h4>
           </div>
-          <span className="text-[10px] font-bold px-2 py-1 rounded-full" style={{ backgroundColor: (STATUS_COLORS[item.status] || '#aaa') + '22', color: STATUS_COLORS[item.status] || '#aaa' }}>{item.status}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              👍 {item.upvotes || 0} Upvotes
+            </span>
+            <span className="text-[10px] font-bold px-2 py-1 rounded-full" style={{ backgroundColor: (STATUS_COLORS[item.status] || '#aaa') + '22', color: STATUS_COLORS[item.status] || '#aaa' }}>{item.status}</span>
+          </div>
         </div>
         <p className="text-sm text-slate-300 mt-3 italic">"{item.description}"</p>
         <div className="flex justify-between items-center text-[10px] text-slate-500 mt-2">
@@ -344,4 +355,3 @@ function AdminDashboard({ user, onLogout }) {
 }
 
 export default AdminDashboard;
-
