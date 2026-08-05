@@ -5,6 +5,7 @@ import { ResidentAnnouncementList } from './ResidentAnnouncementList';
 import ScrollBanner from './ScrollBanner';
 //Nusfat End
 import { ResidentRegistryList } from './ResidentRegistryList';
+import { ResidentFAQView } from './ResidentFAQView';
 
 function ResidentDashboard({ user, onLogout }) {
   const [outages, setOutages] = useState([]);
@@ -160,6 +161,29 @@ function ResidentDashboard({ user, onLogout }) {
     );
   }
 
+  const navTabs = [
+    { key: 'map', label: 'Monitor' },
+    { key: 'faq', label: 'FAQs & Help' },
+    { key: 'profile', label: 'Account Settings' },
+  ];
+  const renderedNavTabs = [];
+  for (let i = 0; i < navTabs.length; i++) {
+    const tabItem = navTabs[i];
+    renderedNavTabs.push(
+      <button
+        key={tabItem.key}
+        onClick={() => setActiveTab(tabItem.key)}
+        className={`w-full py-2 px-3 text-left text-xs font-bold rounded-lg transition-all ${
+          activeTab === tabItem.key
+            ? 'bg-cyan-600 text-white'
+            : 'bg-slate-950 text-slate-400 hover:text-white'
+        }`}
+      >
+        {tabItem.label}
+      </button>
+    );
+  }
+
   const hasUpvoted = selectedIncident && selectedIncident.upvotedBy && selectedIncident.upvotedBy.includes(user.id);
 
   return (
@@ -180,6 +204,11 @@ function ResidentDashboard({ user, onLogout }) {
             <h1 className="text-xl font-black">Operations</h1>
             <p className="text-slate-500 text-xs">Hello {profile.username}</p>
           </div>
+        </div>
+
+        <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-col gap-2">
+          <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Navigation</h4>
+          {renderedNavTabs}
         </div>
 
         <button
@@ -225,6 +254,19 @@ function ResidentDashboard({ user, onLogout }) {
               </button>
             </form>
           </div>
+        ) : activeTab === 'faq' ? (
+          <div className="flex-1 flex flex-col">
+            <div className="flex justify-between items-start mb-6">
+              <h3 className="text-sm font-bold">Frequently Asked Questions</h3>
+              <button
+                onClick={onLogout}
+                className="px-4 py-2 bg-slate-800 text-xs font-bold rounded-lg hover:bg-red-900/50"
+              >
+                Logout
+              </button>
+            </div>
+            <ResidentFAQView />
+          </div>
         ) : (
           <>
             <div className="flex justify-between items-start mb-6">
@@ -265,6 +307,12 @@ function ResidentDashboard({ user, onLogout }) {
                 className={`text-xl font-black cursor-pointer ${activeTab === 'registry' ? 'text-white' : 'text-slate-600'}`}
               >
                 Repair Registry
+              </h2>
+              <h2
+                onClick={() => setActiveTab('faq')}
+                className={`text-xl font-black cursor-pointer ${activeTab === 'faq' ? 'text-white' : 'text-slate-600'}`}
+              >
+                FAQs & Help
               </h2>
             </div>
             <button 
@@ -341,6 +389,10 @@ function ResidentDashboard({ user, onLogout }) {
                   <p className="text-xs text-slate-500">Select a pin to view details, or click the map to file a report.</p>
                 )}
               </div>
+            </div>
+          ) : activeTab === 'faq' ? (
+            <div className="flex-1 bg-slate-900 p-6 rounded-2xl border border-slate-800 overflow-hidden flex flex-col">
+              <ResidentFAQView />
             </div>
           ) : (
             <ResidentRegistryList 

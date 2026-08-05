@@ -7,6 +7,7 @@ const { registerUser, loginUser, updateProfile, getTechnicians } = require('./co
 const { getActiveOutages, createOutageReport, deleteOutageReport, assignTechnician, deleteOutage, getAssignedTasks, resolveOutage, getAllOutages, upvoteOutage } = require('./controllers/outageController');
 const { generateVerificationId, listVerificationIds, revokeVerificationId } = require('./controllers/verificationController');
 const { getAllForumPosts, createForumPost, answerForumPost, updateForumPost, deleteForumPost, updateForumReply, deleteForumReply } = require('./controllers/forumController');
+const { getAllFaqs, createFaq, updateFaq, deleteFaq, getAllCategories, createCategory, deleteCategory } = require('./controllers/faqController');
 
 const app = express();
 
@@ -53,6 +54,18 @@ app.put('/api/forum/update/:postId', updateForumPost);
 app.delete('/api/forum/delete/:postId', deleteForumPost);
 app.put('/api/forum/reply/update/:replyId', updateForumReply);
 app.delete('/api/forum/reply/delete/:replyId', deleteForumReply);
+
+
+// --- FAQ & CATEGORY ROUTE ENDPOINTS ---
+app.get('/api/faqs', getAllFaqs);
+app.get('/api/faqs/all', getAllFaqs);
+app.post('/api/faqs/create', createFaq);
+app.put('/api/faqs/update/:id', updateFaq);
+app.delete('/api/faqs/delete/:id', deleteFaq);
+
+app.get('/api/categories', getAllCategories);
+app.post('/api/categories/create', createCategory);
+app.delete('/api/categories/delete/:id', deleteCategory);
 
 
 //Nusfat: Banner Routes - Scroll Banner Publisher
