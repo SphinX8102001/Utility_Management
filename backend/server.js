@@ -53,6 +53,42 @@ app.delete('/api/forum/delete/:postId', deleteForumPost);
 app.put('/api/forum/reply/update/:replyId', updateForumReply);
 app.delete('/api/forum/reply/delete/:replyId', deleteForumReply);
 
+
+//Nusfat: Banner Routes - Scroll Banner Publisher
+const Banner = require('./models/Banner');
+
+app.post('/api/banner/post', async (req, res) => {
+  const { message } = req.body;
+  try {
+    if (!message) return res.status(400).json({ message: 'Message is required' });
+    await Banner.updateMany({}, { isActive: false });
+    const banner = await Banner.create({ message });
+    res.status(201).json(banner);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.get('/api/banner/active', async (req, res) => {
+  try {
+    const banner = await Banner.findOne({ isActive: true }).sort({ createdAt: -1 });
+    res.json(banner);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.delete('/api/banner/deactivate', async (req, res) => {
+  try {
+    await Banner.updateMany({}, { isActive: false });
+    res.json({ message: 'Banner deactivated' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+//Nusfat End
+
+
 //Nusfat: Shift Toggle Route for Duty Status Feature
 app.patch('/api/user/toggle-status', async (req, res) => {
   try {
