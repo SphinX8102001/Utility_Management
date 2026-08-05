@@ -5,6 +5,7 @@ import IncidentPanel from './IncidentPanel';
 //Nusfat: Banner Publisher Import
 import BannerPublisher from './BannerPublisher';
 //Nusfat End
+import AdminFaq from './AdminFaq';
 
 const API = 'http://localhost:5000';
 
@@ -176,6 +177,7 @@ function AdminDashboard({ user, onLogout }) {
     //Nusfat: Banner Publisher Tab
     { key: 'banner', label: 'Banner Publisher' },
     //Nusfat End
+    { key: 'faq', label: 'FAQ Manager' },
   ];
   const renderedTabs = [];
   for (let i = 0; i < tabs.length; i++) {
@@ -318,6 +320,8 @@ function AdminDashboard({ user, onLogout }) {
           //Nusfat: Banner Publisher Tab Content
           <BannerPublisher />
           //Nusfat End
+        ) : activeTab === 'faq' ? (
+          <AdminFaq />
         ) : (
           <VerificationIDsPanel />
         )}
