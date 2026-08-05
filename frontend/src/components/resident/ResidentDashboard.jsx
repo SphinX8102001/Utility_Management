@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { PreviewMap, FullMap, isInsideBangladesh } from './ResidentMapOverview';
 import { ResidentAnnouncementList } from './ResidentAnnouncementList';
+//Nusfat: ScrollBanner Import
+import ScrollBanner from './ScrollBanner';
+//Nusfat End
 import { ResidentRegistryList } from './ResidentRegistryList';
 
 function ResidentDashboard({ user, onLogout }) {
@@ -135,7 +138,11 @@ function ResidentDashboard({ user, onLogout }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-6 font-sans flex gap-6">
+    <div className="min-h-screen bg-slate-950 text-white font-sans">
+      {/* --- NUSFAT: Scroll Banner Display --- */}
+      <ScrollBanner />
+      {/* --- NUSFAT END --- */}
+      <div className="p-6 flex gap-6">
       <div className="w-1/3 flex flex-col gap-6">
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex items-center gap-4">
           <div
@@ -304,6 +311,7 @@ function ResidentDashboard({ user, onLogout }) {
           )}
         </div>
       )}
+    </div>
     </div>
   );
 }

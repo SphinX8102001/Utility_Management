@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import VerificationIDsPanel from './VerificationIDsPanel';
 import { PreviewMap, AdminFullMap } from './AdminMaps';
 import IncidentPanel from './IncidentPanel';
+//Nusfat: Banner Publisher Import
+import BannerPublisher from './BannerPublisher';
+//Nusfat End
 
 const API = 'http://localhost:5000';
 
@@ -170,8 +173,10 @@ function AdminDashboard({ user, onLogout }) {
     { key: 'map', label: 'Map View' },
     { key: 'registry', label: 'Report Registry' },
     { key: 'verification', label: 'Verification IDs' },
+    //Nusfat: Banner Publisher Tab
+    { key: 'banner', label: 'Banner Publisher' },
+    //Nusfat End
   ];
-
   const renderedTabs = [];
   for (let i = 0; i < tabs.length; i++) {
     const tab = tabs[i];
@@ -298,6 +303,10 @@ function AdminDashboard({ user, onLogout }) {
             {filteredOutages.length === 0 && <p className="text-xs text-slate-500 italic">No reports match the current filter.</p>}
             {registryItems}
           </div>
+        ) : activeTab === 'banner' ? (
+          //Nusfat: Banner Publisher Tab Content
+          <BannerPublisher />
+          //Nusfat End
         ) : (
           <VerificationIDsPanel />
         )}
