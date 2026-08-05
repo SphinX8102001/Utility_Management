@@ -109,6 +109,10 @@ export function PreviewMap({ outages, onClick }) {
             <strong style={{ color: '#0ea5e9' }}>{item.utilityType}</strong>
             <br />
             {item.locationName}
+            <br />
+            <span style={{ fontSize: '11px', color: '#059669', fontWeight: 'bold' }}>
+              Confirmed by {item.upvotes || 0} residents
+            </span>
           </div>
         </Popup>
       </Marker>
@@ -182,6 +186,10 @@ export function FullMap({ outages, onMapClick, clickedPosition, setSelectedIncid
             <span style={{ fontSize: '11px', color: '#555' }}>{item.description}</span>
             <br />
             <span style={{ fontSize: '10px', fontStyle: 'italic', color: '#777' }}>Reported by: {item.reporterName}</span>
+            <br />
+            <span style={{ fontSize: '11px', color: '#059669', fontWeight: 'bold' }}>
+              Confirmed by {item.upvotes || 0} residents
+            </span>
           </div>
         </Popup>
       </Marker>
