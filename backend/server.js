@@ -4,7 +4,7 @@ const connectDatabase = require('./db');
 
 // Import controllers
 const { registerUser, loginUser, updateProfile, getTechnicians } = require('./controllers/authController');
-const { getActiveOutages, createOutageReport, deleteOutageReport, assignTechnician, deleteOutage, getAssignedTasks, resolveOutage, getAllOutages } = require('./controllers/outageController');
+const { getActiveOutages, createOutageReport, deleteOutageReport, assignTechnician, deleteOutage, getAssignedTasks, resolveOutage, getAllOutages, upvoteOutage } = require('./controllers/outageController');
 const { generateVerificationId, listVerificationIds, revokeVerificationId } = require('./controllers/verificationController');
 const { getAllForumPosts, createForumPost, answerForumPost, updateForumPost, deleteForumPost, updateForumReply, deleteForumReply } = require('./controllers/forumController');
 
@@ -26,6 +26,7 @@ app.post('/api/user/update', updateProfile);
 app.get('/api/outages/active', getActiveOutages);
 app.post('/api/outages/report', createOutageReport);
 app.delete('/api/outages/delete/:id', deleteOutageReport);
+app.post('/api/outages/upvote/:id', upvoteOutage);
 
 // --- ADMIN ROUTE ENDPOINTS ---
 app.get('/api/users/technicians', getTechnicians);

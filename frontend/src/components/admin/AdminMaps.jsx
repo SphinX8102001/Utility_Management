@@ -70,7 +70,8 @@ export function PreviewMap({ outages, onClick }) {
       <Marker key={item._id} position={[item.latitude, item.longitude]} icon={getIcon(item.utilityType)}>
         <Popup>
           <div style={{ fontFamily: 'sans-serif' }}>
-            <strong style={{ color: '#0ea5e9' }}>{item.utilityType}</strong><br />{item.locationName}
+            <strong style={{ color: '#0ea5e9' }}>{item.utilityType}</strong><br />{item.locationName}<br />
+            <span style={{ fontSize: '11px', color: '#f59e0b', fontWeight: 'bold' }}>👍 {item.upvotes || 0} Confirmations</span>
           </div>
         </Popup>
       </Marker>
@@ -120,6 +121,7 @@ export function AdminFullMap({ outages, selectedIncident, setSelectedIncident })
             <strong style={{ fontSize: '14px', color: '#0ea5e9' }}>{item.utilityType}</strong><br />
             <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{item.locationName}</span><br />
             <span style={{ fontSize: '11px', color: '#555' }}>{item.description}</span><br />
+            <span style={{ fontSize: '11px', color: '#f59e0b', fontWeight: 'bold' }}>👍 {item.upvotes || 0} Confirmations</span><br />
             <span style={{ fontSize: '10px', color: STATUS_COLORS[item.status] || '#aaa' }}>● {item.status}</span><br />
             <span style={{ fontSize: '10px', fontStyle: 'italic', color: '#777' }}>Reported by: {item.reporterName}</span>
             {item.assignedToName ? <><br /><span style={{ fontSize: '10px', color: '#0ea5e9' }}>Assigned to: {item.assignedToName}</span></> : null}

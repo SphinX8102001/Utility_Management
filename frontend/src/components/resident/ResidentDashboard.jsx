@@ -104,6 +104,24 @@ function ResidentDashboard({ user, onLogout }) {
       .catch((err) => console.error('Delete failed:', err));
   };
 
+  const handleUpvote = (outageId) => {
+    fetch(`http://localhost:5000/api/outages/upvote/${outageId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: user.id }),
+    })
+      .then((res) => res.json().then((data) => ({ status: res.status, body: data })))
+      .then(({ status, body }) => {
+        if (status === 200) {
+          setSelectedIncident(body.report);
+          fetchMapMarkers();
+        } else {
+          alert(body.error || 'Failed to toggle outage upvote.');
+        }
+      })
+      .catch((err) => console.error('Upvote error:', err));
+  };
+
   const updateProfile = (e) => {
     e.preventDefault();
     fetch('http://localhost:5000/api/user/update', {
@@ -130,12 +148,19 @@ function ResidentDashboard({ user, onLogout }) {
   for (let i = 0; i < outages.length; i++) {
     const outageItem = outages[i];
     renderedOutageRows.push(
-      <div key={outageItem._id} className="flex justify-between text-xs py-2 border-b border-slate-800 last:border-0">
-        <span className="font-bold text-cyan-400">{outageItem.utilityType}</span>
-        <span className="text-slate-400">{outageItem.locationName}</span>
+      <div key={outageItem._id} className="flex justify-between items-center text-xs py-2 border-b border-slate-800 last:border-0">
+        <div>
+          <span className="font-bold text-cyan-400 mr-2">{outageItem.utilityType}</span>
+          <span className="text-slate-400">{outageItem.locationName}</span>
+        </div>
+        <span className="text-[10px] px-2 py-0.5 bg-emerald-950 text-emerald-400 rounded-full border border-emerald-800/50">
+          👍 {outageItem.upvotes || 0}
+        </span>
       </div>
     );
   }
+
+  const hasUpvoted = selectedIncident && selectedIncident.upvotedBy && selectedIncident.upvotedBy.includes(user.id);
 
   return (
     <div className="min-h-screen bg-slate-950 text-white font-sans">
@@ -286,8 +311,23 @@ function ResidentDashboard({ user, onLogout }) {
                       <p className="text-xs"><strong>Type:</strong> {selectedIncident.utilityType}</p>
                       <p className="text-xs"><strong>Location:</strong> {selectedIncident.locationName}</p>
                       <p className="text-xs"><strong>Reported By:</strong> {selectedIncident.reporterName}</p>
+                      <p className="text-xs"><strong>Confirmations:</strong> <span className="text-emerald-400 font-bold">{selectedIncident.upvotes || 0} residents</span></p>
                       <p className="text-xs italic bg-slate-950 p-3 border border-slate-800 rounded">"{selectedIncident.description}"</p>
                     </div>
+
+                    {selectedIncident.reporterId !== user.id && (
+                      <button
+                        onClick={() => handleUpvote(selectedIncident._id)}
+                        className={`w-full py-2 text-white text-xs font-bold rounded transition-colors ${
+                          hasUpvoted 
+                            ? 'bg-amber-700 hover:bg-amber-600' 
+                            : 'bg-emerald-700 hover:bg-emerald-600'
+                        }`}
+                      >
+                        {hasUpvoted ? '👎 REMOVE MY CONFIRMATION' : '👍 ME TOO / CONFIRM OUTAGE'}
+                      </button>
+                    )}
+
                     {selectedIncident.reporterId === user.id && (
                       <button
                         onClick={() => handleDeleteReport(selectedIncident._id)}

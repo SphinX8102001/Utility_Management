@@ -13,6 +13,8 @@ const outageSchema = new mongoose.Schema({
   reporterName: { type: String, required: true },
   assignedTo: { type: String, default: '' },        
   assignedToName: { type: String, default: '' },  
+  upvotes: { type: Number, default: 0 },
+  upvotedBy: { type: [String], default: [] },
   createdAt: { type: Date, default: Date.now }
 });
 

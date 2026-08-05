@@ -159,6 +159,60 @@ const getAllOutages = async (req, res) => {
   }
 };
 
+const upvoteOutage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required to upvote.' });
+    }
+
+    const outage = await Outage.findById(id);
+    if (!outage) {
+      return res.status(404).json({ error: 'Outage report not found.' });
+    }
+
+    if (outage.reporterId === userId) {
+      return res.status(400).json({ error: 'You cannot upvote your own outage report.' });
+    }
+
+    let existingIndex = -1;
+    for (let i = 0; i < outage.upvotedBy.length; i++) {
+      if (outage.upvotedBy[i] === userId) {
+        existingIndex = i;
+        break;
+      }
+    }
+
+    if (existingIndex !== -1) {
+      outage.upvotedBy.splice(existingIndex, 1);
+      outage.upvotes = outage.upvotes - 1;
+
+      await outage.save();
+
+      return res.status(200).json({
+        message: 'Outage confirmation removed successfully.',
+        report: outage
+      });
+    }
+
+    outage.upvotedBy.push(userId);
+    outage.upvotes = outage.upvotes + 1;
+
+    await outage.save();
+
+    return res.status(200).json({
+      message: 'Outage confirmed successfully.',
+      report: outage
+    });
+
+  } catch (error) {
+    console.error('Upvote outage error:', error);
+    return res.status(500).json({ error: 'Internal server error processing upvote.' });
+  }
+};
+
 module.exports = {
   getActiveOutages,
   createOutageReport,
@@ -167,5 +221,6 @@ module.exports = {
   deleteOutage,
   getAssignedTasks, 
   resolveOutage,     
-  getAllOutages       
+  getAllOutages,
+  upvoteOutage
 };
