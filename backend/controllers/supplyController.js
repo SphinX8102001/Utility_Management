@@ -134,3 +134,40 @@ exports.getShipmentHistory = async (req, res) => {
     res.status(500).json({ message: 'Error fetching shipment history', error: error.message });
   }
 };
+
+// --- UPDATE SUPPLY ITEM (edit details or adjust quantity directly) ---
+exports.updateSupply = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, sku, category, quantity, unit, minThreshold, updatedBy } = req.body;
+
+    // Validate that the supply item exists
+    const existing = await Supply.findById(id);
+    if (!existing) {
+      return res.status(404).json({ message: 'Supply item not found.' });
+    }
+
+    // If SKU is being changed, ensure the new SKU is not already taken by another item
+    if (sku && sku.trim().toUpperCase() !== existing.sku) {
+      const skuConflict = await Supply.findOne({ sku: sku.trim().toUpperCase(), _id: { $ne: id } });
+      if (skuConflict) {
+        return res.status(400).json({ message: 'Another supply item already uses this SKU.' });
+      }
+    }
+
+    // Build the update payload with only the provided fields
+    const updateFields = { updatedAt: new Date() };
+    if (name !== undefined)         updateFields.name = name.trim();
+    if (sku !== undefined)          updateFields.sku = sku.trim().toUpperCase();
+    if (category !== undefined)     updateFields.category = category;
+    if (quantity !== undefined)     updateFields.quantity = Math.max(0, parseInt(quantity, 10));
+    if (unit !== undefined)         updateFields.unit = unit.trim();
+    if (minThreshold !== undefined) updateFields.minThreshold = Math.max(0, parseInt(minThreshold, 10));
+    if (updatedBy !== undefined)    updateFields.updatedBy = updatedBy;
+
+    const updated = await Supply.findByIdAndUpdate(id, { $set: updateFields }, { new: true });
+    res.status(200).json({ message: 'Supply item updated successfully.', supply: updated });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating supply item', error: error.message });
+  }
+};

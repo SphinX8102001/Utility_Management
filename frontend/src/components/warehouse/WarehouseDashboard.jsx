@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import CentralSparesLedger from './CentralSparesLedger';
 
 const API = 'http://localhost:5000';
 
@@ -233,10 +234,10 @@ function WarehouseDashboard({ user, onLogout }) {
         {/* ===================== TAB: INVENTORY ===================== */}
         {activeTab === 'inventory' && (
           <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 backdrop-blur-md">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <div>
-                <h2 className="text-base font-bold text-slate-200">Live Inventory Ledger</h2>
-                <p className="text-xs text-slate-500">Real-time stock levels across all supply categories</p>
+                <h2 className="text-base font-bold text-slate-200">Central Spares Ledger</h2>
+                <p className="text-xs text-slate-500">Full catalog of emergency equipment &amp; repair hardware stored at this depot</p>
               </div>
               <button
                 onClick={() => setShowAddItem(v => !v)}
@@ -285,61 +286,19 @@ function WarehouseDashboard({ user, onLogout }) {
               </form>
             )}
 
-            {/* Search + Filter */}
-            <div className="flex flex-col sm:flex-row gap-3 mb-5">
-              <input
-                value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-                placeholder="Search by name or SKU..."
-                className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-cyan-500/40 transition-colors"
-              />
-              <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)}
-                className="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-300 focus:outline-none focus:border-cyan-500/40 transition-colors">
-                <option value="All">All Categories</option>
-                {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-              </select>
-            </div>
-
-            {/* Inventory Table */}
             {loadingSupplies ? (
-              <div className="text-center py-16 text-slate-500 text-sm animate-pulse">Loading inventory data...</div>
-            ) : filteredSupplies.length === 0 ? (
-              <div className="text-center py-16 text-slate-600 text-sm">No items match your search criteria.</div>
+              <div className="text-center py-16 text-slate-500 text-sm animate-pulse">Loading inventory data…</div>
             ) : (
-              <div className="overflow-x-auto rounded-xl border border-slate-800">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-slate-950/80 text-xs text-slate-500 uppercase tracking-wider">
-                      <th className="text-left px-4 py-3 font-semibold">Part Name</th>
-                      <th className="text-left px-4 py-3 font-semibold">SKU</th>
-                      <th className="text-left px-4 py-3 font-semibold">Category</th>
-                      <th className="text-right px-4 py-3 font-semibold">Stock</th>
-                      <th className="text-left px-4 py-3 font-semibold">Unit</th>
-                      <th className="text-left px-4 py-3 font-semibold">Status</th>
-                      <th className="text-left px-4 py-3 font-semibold">Last Supplier</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/60">
-                    {filteredSupplies.map(s => {
-                      const st = stockStatus(s.quantity, s.minThreshold);
-                      return (
-                        <tr key={s._id} className="hover:bg-slate-800/30 transition-colors">
-                          <td className="px-4 py-3 font-medium text-slate-200">{s.name}</td>
-                          <td className="px-4 py-3 text-slate-500 font-mono text-xs">{s.sku}</td>
-                          <td className="px-4 py-3 text-slate-400">{s.category}</td>
-                          <td className="px-4 py-3 text-right font-black text-lg text-slate-100">{s.quantity}</td>
-                          <td className="px-4 py-3 text-slate-500 text-xs">{s.unit}</td>
-                          <td className="px-4 py-3">
-                            <span className={`inline-flex items-center px-2.5 py-1 rounded-lg border text-xs font-bold ${statusBadge[st]}`}>
-                              {statusLabel[st]}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-slate-500 text-xs">{s.lastSupplier || '—'}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+              <CentralSparesLedger
+                supplies={supplies}
+                user={user}
+                onRefresh={fetchSupplies}
+                showNotification={showNotification}
+                onGoToShipment={(supplyId) => {
+                  setFormSupplyId(supplyId);
+                  setActiveTab('shipment');
+                }}
+              />
             )}
           </div>
         )}
