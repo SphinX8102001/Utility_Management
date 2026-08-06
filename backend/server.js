@@ -8,6 +8,7 @@ const { getActiveOutages, createOutageReport, deleteOutageReport, assignTechnici
 const { generateVerificationId, listVerificationIds, revokeVerificationId } = require('./controllers/verificationController');
 const { getAllForumPosts, createForumPost, answerForumPost, updateForumPost, deleteForumPost, updateForumReply, deleteForumReply } = require('./controllers/forumController');
 const { getAllFaqs, createFaq, updateFaq, deleteFaq, getAllCategories, createCategory, deleteCategory } = require('./controllers/faqController');
+const { getAllSupplies, createSupply, recordShipment, getShipmentHistory } = require('./controllers/supplyController');
 
 const app = express();
 
@@ -66,6 +67,13 @@ app.delete('/api/faqs/delete/:id', deleteFaq);
 app.get('/api/categories', getAllCategories);
 app.post('/api/categories/create', createCategory);
 app.delete('/api/categories/delete/:id', deleteCategory);
+
+
+// --- WAREHOUSE SUPPLY & SHIPMENT ROUTE ENDPOINTS ---
+app.get('/api/supplies', getAllSupplies);
+app.post('/api/supplies/create', createSupply);
+app.post('/api/supplies/shipment', recordShipment);
+app.get('/api/supplies/shipments', getShipmentHistory);
 
 
 //Nusfat: Banner Routes - Scroll Banner Publisher
