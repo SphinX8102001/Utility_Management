@@ -1,11 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-// --- NUSFAT: Banner Publisher Component for Control Manager - Module 2 ---
+//NUSFAT: Banner Publisher Component for Control Manager
 function BannerPublisher() {
   const [message, setMessage] = useState('');
+  const [banners, setBanners] = useState([]);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const fetchBanners = async () => {
+    try {
+      const res = await fetch('http://localhost:5000/api/banner/all');
+      const data = await res.json();
+      setBanners(Array.isArray(data) ? data : []);
+    } catch {
+      console.error('Failed to fetch banners');
+    }
+  };
+
+  useEffect(() => {
+    fetchBanners();
+  }, []);
 
   const handlePost = async () => {
     if (!message.trim()) {
@@ -25,6 +40,7 @@ function BannerPublisher() {
       if (res.ok) {
         setSuccess('Banner published successfully!');
         setMessage('');
+        fetchBanners();
       } else {
         setError(data.message || 'Failed to publish banner.');
       }
@@ -35,20 +51,22 @@ function BannerPublisher() {
     }
   };
 
-  const handleDeactivate = async () => {
+  const handleDelete = async (id) => {
     try {
-      await fetch('http://localhost:5000/api/banner/deactivate', {
+      await fetch(`http://localhost:5000/api/banner/delete/${id}`, {
         method: 'DELETE'
       });
-      setSuccess('Banner deactivated successfully.');
-      setMessage('');
+      setSuccess('Banner removed successfully.');
+      fetchBanners();
     } catch {
-      setError('Failed to deactivate banner.');
+      setError('Failed to remove banner.');
     }
   };
 
   return (
     <div className="flex flex-col gap-6 p-6">
+      
+      {/* Publish Form */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
         <h3 className="text-sm font-black text-cyan-400 uppercase tracking-wider mb-1">
           Emergency Broadcast System
@@ -82,40 +100,61 @@ function BannerPublisher() {
             />
           </div>
 
-          <div className="flex gap-3">
-            <button
-              onClick={handlePost}
-              disabled={loading}
-              className={`flex-1 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all
-                ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-            >
-              {loading ? 'Publishing...' : 'Publish Banner'}
-            </button>
-
-            <button
-              onClick={handleDeactivate}
-              className="flex-1 py-3 bg-red-900/40 hover:bg-red-900/60 text-red-400 font-black text-xs uppercase tracking-wider rounded-xl transition-all border border-red-900/50"
-            >
-              Remove Banner
-            </button>
-          </div>
+          <button
+            onClick={handlePost}
+            disabled={loading}
+            className={`w-full py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all
+              ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {loading ? 'Publishing...' : 'Publish Banner'}
+          </button>
         </div>
       </div>
 
+      {/* All Banners List */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-          How it works
+        <h4 className="text-xs font-black text-cyan-400 uppercase tracking-wider mb-4">
+          Posted Announcements ({banners.length})
         </h4>
-        <div className="space-y-2">
-          <p className="text-xs text-slate-500">1. Type your emergency announcement above</p>
-          <p className="text-xs text-slate-500">2. Click "Publish Banner" to broadcast to all residents</p>
-          <p className="text-xs text-slate-500">3. Banner appears as a scrolling alert on resident dashboard</p>
-          <p className="text-xs text-slate-500">4. Click "Remove Banner" to deactivate the announcement</p>
-        </div>
+
+        {banners.length === 0 ? (
+          <p className="text-xs text-slate-500 italic">No announcements posted yet.</p>
+        ) : (
+          <div className="space-y-3">
+            {banners.map((banner) => (
+              <div
+                key={banner._id}
+                className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex justify-between items-start gap-4"
+              >
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      banner.isActive 
+                        ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+                        : 'bg-slate-800 text-slate-500'
+                    }`}>
+                      {banner.isActive ? 'ACTIVE' : 'INACTIVE'}
+                    </span>
+                    <span className="text-[10px] text-slate-500">
+                      {new Date(banner.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <p className="text-xs text-white">{banner.message}</p>
+                </div>
+                <button
+                  onClick={() => handleDelete(banner._id)}
+                  className="py-1.5 px-3 bg-red-900/40 hover:bg-red-900/60 text-red-400 font-black text-[10px] uppercase tracking-wider rounded-lg transition-all border border-red-900/50 whitespace-nowrap"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
 }
-// --- NUSFAT END ---
+//NUSFAT END
 
 export default BannerPublisher;
