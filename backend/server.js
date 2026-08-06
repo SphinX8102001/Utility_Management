@@ -8,7 +8,7 @@ const { getActiveOutages, createOutageReport, deleteOutageReport, assignTechnici
 const { generateVerificationId, listVerificationIds, revokeVerificationId } = require('./controllers/verificationController');
 const { getAllForumPosts, createForumPost, answerForumPost, updateForumPost, deleteForumPost, updateForumReply, deleteForumReply } = require('./controllers/forumController');
 const { getAllFaqs, createFaq, updateFaq, deleteFaq, getAllCategories, createCategory, deleteCategory } = require('./controllers/faqController');
-const { getAllSupplies, createSupply, recordShipment, getShipmentHistory } = require('./controllers/supplyController');
+const { getAllSupplies, createSupply, recordShipment, getShipmentHistory, updateSupply } = require('./controllers/supplyController');
 
 const app = express();
 
@@ -74,6 +74,7 @@ app.get('/api/supplies', getAllSupplies);
 app.post('/api/supplies/create', createSupply);
 app.post('/api/supplies/shipment', recordShipment);
 app.get('/api/supplies/shipments', getShipmentHistory);
+app.put('/api/supplies/:id', updateSupply);
 
 
 //Nusfat: Banner Routes - Scroll Banner Publisher
