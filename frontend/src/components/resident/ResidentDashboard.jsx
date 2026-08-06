@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PreviewMap, FullMap, isInsideBangladesh } from './ResidentMapOverview';
 import { ResidentAnnouncementList } from './ResidentAnnouncementList';
-//Nusfat: ScrollBanner Import
-import ScrollBanner from './ScrollBanner';
-//Nusfat End
 import { ResidentRegistryList } from './ResidentRegistryList';
 import { ResidentFAQView } from './ResidentFAQView';
 
@@ -14,6 +11,28 @@ function ResidentDashboard({ user, onLogout }) {
   const [showFullMap, setShowFullMap] = useState(false);
   const [isReporting, setIsReporting] = useState(false);
   const [activeTab, setActiveTab] = useState('map'); 
+  //NUSFAT: Banner state for System Announcements
+  const [banners, setBanners] = useState([]);
+
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/banner/active');
+        const data = await res.json();
+        if (data && data.message) {
+          setBanners([{ id: data._id, text: data.message }]);
+        } else {
+          setBanners([]);
+        }
+      } catch {
+        setBanners([]);
+      }
+    };
+    fetchBanners();
+    const interval = setInterval(fetchBanners, 30000);
+    return () => clearInterval(interval);
+  }, []);
+//NUSFAT END
 
   const [profile, setProfile] = useState({
     username: user?.username || 'User',
@@ -188,9 +207,6 @@ function ResidentDashboard({ user, onLogout }) {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white font-sans">
-      {/* --- NUSFAT: Scroll Banner Display --- */}
-      <ScrollBanner />
-      {/* --- NUSFAT END --- */}
       <div className="p-6 flex gap-6">
       <div className="w-1/3 flex flex-col gap-6">
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex items-center gap-4">
@@ -220,10 +236,12 @@ function ResidentDashboard({ user, onLogout }) {
 
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex-1">
           <h4 className="text-sm font-bold text-cyan-400 mb-4 uppercase">System Announcements</h4>
+          {/*NUSFAT: Pass active banners to announcements box*/}
           <ResidentAnnouncementList 
-            announcements={[]} 
-            dismissAnnouncement={() => {}} 
+             announcements={banners} 
+             dismissAnnouncement={(id) => setBanners(prev => prev.filter(b => b.id !== id))} 
           />
+          {/*NUSFAT END */}
         </div>
       </div>
 

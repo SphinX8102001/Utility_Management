@@ -125,7 +125,30 @@ app.patch('/api/user/toggle-status', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+
+// Get all banners for admin
+app.get('/api/banner/all', async (req, res) => {
+  try {
+    const banners = await Banner.find().sort({ createdAt: -1 });
+    res.json(banners);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Delete specific banner by ID
+app.delete('/api/banner/delete/:id', async (req, res) => {
+  try {
+    await Banner.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Banner deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 //Nusfat end
+
+
 // --- STARTUP BOUNDARY ROUTINE ---
 const PORT = 5000;
 app.listen(PORT, () => {
