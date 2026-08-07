@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-//NUSFAT: Banner Publisher Component for Control Manager
+//NUSFAT: Banner Publisher Component for Control Manager - Module 2
 function BannerPublisher() {
   const [message, setMessage] = useState('');
   const [banners, setBanners] = useState([]);
@@ -51,6 +51,17 @@ function BannerPublisher() {
     }
   };
 
+  const handleToggle = async (id) => {
+    try {
+      await fetch(`http://localhost:5000/api/banner/toggle/${id}`, {
+        method: 'PATCH'
+      });
+      fetchBanners();
+    } catch {
+      setError('Failed to toggle banner.');
+    }
+  };
+
   const handleDelete = async (id) => {
     try {
       await fetch(`http://localhost:5000/api/banner/delete/${id}`, {
@@ -65,7 +76,7 @@ function BannerPublisher() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      
+
       {/* Publish Form */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
         <h3 className="text-sm font-black text-cyan-400 uppercase tracking-wider mb-1">
@@ -124,14 +135,14 @@ function BannerPublisher() {
             {banners.map((banner) => (
               <div
                 key={banner._id}
-                className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex justify-between items-start gap-4"
+                className="bg-slate-950 border border-slate-800 rounded-xl p-4"
               >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                      banner.isActive 
-                        ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
-                        : 'bg-slate-800 text-slate-500'
+                      banner.isActive
+                        ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                        : 'bg-slate-800 text-slate-500 border border-slate-700'
                     }`}>
                       {banner.isActive ? 'ACTIVE' : 'INACTIVE'}
                     </span>
@@ -139,14 +150,28 @@ function BannerPublisher() {
                       {new Date(banner.createdAt).toLocaleDateString()}
                     </span>
                   </div>
-                  <p className="text-xs text-white">{banner.message}</p>
                 </div>
-                <button
-                  onClick={() => handleDelete(banner._id)}
-                  className="py-1.5 px-3 bg-red-900/40 hover:bg-red-900/60 text-red-400 font-black text-[10px] uppercase tracking-wider rounded-lg transition-all border border-red-900/50 whitespace-nowrap"
-                >
-                  Remove
-                </button>
+
+                <p className="text-xs text-white mb-3">{banner.message}</p>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleToggle(banner._id)}
+                    className={`flex-1 py-1.5 font-black text-[10px] uppercase tracking-wider rounded-lg transition-all border ${
+                      banner.isActive
+                        ? 'bg-amber-900/40 hover:bg-amber-900/60 text-amber-400 border-amber-900/50'
+                        : 'bg-green-900/40 hover:bg-green-900/60 text-green-400 border-green-900/50'
+                    }`}
+                  >
+                    {banner.isActive ? 'Set Inactive' : 'Set Active'}
+                  </button>
+                  <button
+                    onClick={() => handleDelete(banner._id)}
+                    className="flex-1 py-1.5 bg-red-900/40 hover:bg-red-900/60 text-red-400 font-black text-[10px] uppercase tracking-wider rounded-lg transition-all border border-red-900/50"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>
