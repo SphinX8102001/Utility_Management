@@ -41,11 +41,9 @@ app.post('/api/verification/generate', generateVerificationId);
 app.get('/api/verification/list', listVerificationIds);
 app.delete('/api/verification/revoke/:id', revokeVerificationId);
 
-
 //--- Technician Route Endpoints ---
 app.get('/api/outages/assigned/:technicianId', getAssignedTasks);
 app.post('/api/outages/resolve/:id', resolveOutage);
-
 
 // --- TECHNICIAN FORUM ROUTE ENDPOINTS ---
 app.get('/api/forum/all', getAllForumPosts);
@@ -56,18 +54,15 @@ app.delete('/api/forum/delete/:postId', deleteForumPost);
 app.put('/api/forum/reply/update/:replyId', updateForumReply);
 app.delete('/api/forum/reply/delete/:replyId', deleteForumReply);
 
-
 // --- FAQ & CATEGORY ROUTE ENDPOINTS ---
 app.get('/api/faqs', getAllFaqs);
 app.get('/api/faqs/all', getAllFaqs);
 app.post('/api/faqs/create', createFaq);
 app.put('/api/faqs/update/:id', updateFaq);
 app.delete('/api/faqs/delete/:id', deleteFaq);
-
 app.get('/api/categories', getAllCategories);
 app.post('/api/categories/create', createCategory);
 app.delete('/api/categories/delete/:id', deleteCategory);
-
 
 // --- WAREHOUSE SUPPLY & SHIPMENT ROUTE ENDPOINTS ---
 app.get('/api/supplies', getAllSupplies);
@@ -75,15 +70,14 @@ app.post('/api/supplies/create', createSupply);
 app.post('/api/supplies/shipment', recordShipment);
 app.get('/api/supplies/shipments', getShipmentHistory);
 
-
-//Nusfat: Banner Routes - Scroll Banner Publisher
+//NUSFAT: Banner Routes - Scroll Banner Publisher (Module 2)
 const Banner = require('./models/Banner');
 
+// Post new banner (stays active, doesn't deactivate old ones)
 app.post('/api/banner/post', async (req, res) => {
   const { message } = req.body;
   try {
     if (!message) return res.status(400).json({ message: 'Message is required' });
-    await Banner.updateMany({}, { isActive: false });
     const banner = await Banner.create({ message });
     res.status(201).json(banner);
   } catch (error) {
@@ -91,41 +85,15 @@ app.post('/api/banner/post', async (req, res) => {
   }
 });
 
+// Get all active banners for residents
 app.get('/api/banner/active', async (req, res) => {
   try {
-    const banner = await Banner.findOne({ isActive: true }).sort({ createdAt: -1 });
-    res.json(banner);
+    const banners = await Banner.find({ isActive: true }).sort({ createdAt: -1 });
+    res.json(banners);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
-
-app.delete('/api/banner/deactivate', async (req, res) => {
-  try {
-    await Banner.updateMany({}, { isActive: false });
-    res.json({ message: 'Banner deactivated' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-//Nusfat End
-
-
-//Nusfat: Shift Toggle Route for Duty Status Feature
-app.patch('/api/user/toggle-status', async (req, res) => {
-  try {
-    const { userId } = req.body;
-    const User = require('./models/user');
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    user.status = user.status === 'ON_DUTY' ? 'OFF_DUTY' : 'ON_DUTY';
-    await user.save();
-    res.json({ status: user.status });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 
 // Get all banners for admin
 app.get('/api/banner/all', async (req, res) => {
@@ -146,8 +114,36 @@ app.delete('/api/banner/delete/:id', async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-//Nusfat end
 
+// Toggle banner active/inactive
+app.patch('/api/banner/toggle/:id', async (req, res) => {
+  try {
+    const banner = await Banner.findById(req.params.id);
+    if (!banner) return res.status(404).json({ message: 'Banner not found' });
+    banner.isActive = !banner.isActive;
+    await banner.save();
+    res.json(banner);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+//NUSFAT END
+
+//NUSFAT: Shift Toggle Route for Duty Status Feature (Module 1)
+app.patch('/api/user/toggle-status', async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const User = require('./models/user');
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    user.status = user.status === 'ON_DUTY' ? 'OFF_DUTY' : 'ON_DUTY';
+    await user.save();
+    res.json({ status: user.status });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+//NUSFAT END
 
 // --- STARTUP BOUNDARY ROUTINE ---
 const PORT = 5000;

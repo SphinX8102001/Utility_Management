@@ -19,8 +19,9 @@ function ResidentDashboard({ user, onLogout }) {
       try {
         const res = await fetch('http://localhost:5000/api/banner/active');
         const data = await res.json();
-        if (data && data.message) {
-          setBanners([{ id: data._id, text: data.message }]);
+        //NUSFAT: Map all active banners to announcement format
+        if (Array.isArray(data) && data.length > 0) {
+          setBanners(data.map(b => ({ id: b._id, text: b.message })));
         } else {
           setBanners([]);
         }
