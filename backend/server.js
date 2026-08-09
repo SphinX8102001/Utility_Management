@@ -9,6 +9,9 @@ const { generateVerificationId, listVerificationIds, revokeVerificationId } = re
 const { getAllForumPosts, createForumPost, answerForumPost, updateForumPost, deleteForumPost, updateForumReply, deleteForumReply } = require('./controllers/forumController');
 const { getAllFaqs, createFaq, updateFaq, deleteFaq, getAllCategories, createCategory, deleteCategory } = require('./controllers/faqController');
 const { getAllSupplies, createSupply, recordShipment, getShipmentHistory, updateSupply } = require('./controllers/supplyController');
+// Turan: Transaction Auditor Controller Import
+const { submitBkashPayment, getAuditorTransactions, verifyTransaction, exportTransactionsCSV, getUserSubscription } = require('./controllers/transactionController');
+// Turan End
 
 const app = express();
 
@@ -145,6 +148,15 @@ app.patch('/api/user/toggle-status', async (req, res) => {
   }
 });
 //NUSFAT END
+
+// Turan: Transaction Auditor - Control Manager (Stripe & bKash Payment Verification)
+app.post('/api/transactions/bkash', submitBkashPayment);
+app.get('/api/transactions/auditor/all', getAuditorTransactions);
+app.patch('/api/transactions/auditor/verify/:id', verifyTransaction);
+app.get('/api/transactions/auditor/export', exportTransactionsCSV);
+app.get('/api/transactions/resident/:userId', getUserSubscription);
+// Turan End
+
 
 // --- STARTUP BOUNDARY ROUTINE ---
 const PORT = 5000;

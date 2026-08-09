@@ -6,6 +6,9 @@ import IncidentPanel from './IncidentPanel';
 import BannerPublisher from './BannerPublisher';
 //Nusfat End
 import AdminFaq from './AdminFaq';
+//Turan: Transaction Auditor Import
+import TransactionAuditor from './TransactionAuditor';
+//Turan End
 
 const API = 'http://localhost:5000';
 
@@ -178,6 +181,9 @@ function AdminDashboard({ user, onLogout }) {
     { key: 'banner', label: 'Banner Publisher' },
     //Nusfat End
     { key: 'faq', label: 'FAQ Manager' },
+    //Turan: Transaction Auditor Tab - Control Manager
+    { key: 'auditor', label: 'Transaction Auditor' },
+    //Turan End
   ];
   const renderedTabs = [];
   for (let i = 0; i < tabs.length; i++) {
@@ -322,6 +328,12 @@ function AdminDashboard({ user, onLogout }) {
           //Nusfat End
         ) : activeTab === 'faq' ? (
           <AdminFaq />
+        ) : activeTab === 'auditor' ? (
+          //Turan: Transaction Auditor Tab Content
+          <div className="flex-1 overflow-y-auto p-6">
+            <TransactionAuditor user={user} />
+          </div>
+          //Turan End
         ) : (
           <VerificationIDsPanel />
         )}

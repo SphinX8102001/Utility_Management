@@ -3,6 +3,9 @@ import { PreviewMap, FullMap, isInsideBangladesh } from './ResidentMapOverview';
 import { ResidentAnnouncementList } from './ResidentAnnouncementList';
 import { ResidentRegistryList } from './ResidentRegistryList';
 import { ResidentFAQView } from './ResidentFAQView';
+//Turan: Resident Subscription Modal Import
+import ResidentSubscriptionModal from './ResidentSubscriptionModal';
+//Turan End
 
 function ResidentDashboard({ user, onLogout }) {
   const [outages, setOutages] = useState([]);
@@ -11,6 +14,26 @@ function ResidentDashboard({ user, onLogout }) {
   const [showFullMap, setShowFullMap] = useState(false);
   const [isReporting, setIsReporting] = useState(false);
   const [activeTab, setActiveTab] = useState('map'); 
+  //Turan: Subscription modal state
+  const [showSubscribeModal, setShowSubscribeModal] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  useEffect(() => {
+    const checkSubscription = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/transactions/resident/${user?.id || user?._id}`);
+        const data = await res.json();
+        setIsSubscribed(data.hasActiveSubscription);
+      } catch (err) {
+        console.error('Failed to check subscription status', err);
+      }
+    };
+    checkSubscription();
+    // Poll every 10s in case admin approves it while resident is logged in
+    const interval = setInterval(checkSubscription, 10000);
+    return () => clearInterval(interval);
+  }, [user]);
+  //Turan End
   //NUSFAT: Banner state for System Announcements
   const [banners, setBanners] = useState([]);
 
@@ -207,6 +230,7 @@ function ResidentDashboard({ user, onLogout }) {
   const hasUpvoted = selectedIncident && selectedIncident.upvotedBy && selectedIncident.upvotedBy.includes(user.id);
 
   return (
+    <>
     <div className="min-h-screen bg-slate-950 text-white font-sans">
       <div className="p-6 flex gap-6">
       <div className="w-1/3 flex flex-col gap-6">
@@ -234,6 +258,32 @@ function ResidentDashboard({ user, onLogout }) {
         >
           LAUNCH FULL INTERACTIVE MAP
         </button>
+
+        {/*Turan: Premium Alerts Subscribe Button*/}
+        <button
+          onClick={() => setShowSubscribeModal(true)}
+          style={{
+            width: '100%',
+            padding: '12px',
+            borderRadius: '12px',
+            border: 'none',
+            cursor: 'pointer',
+            background: isSubscribed
+              ? 'rgba(34,197,94,0.15)'
+              : 'linear-gradient(135deg, #e40076, #818cf8)',
+            color: isSubscribed ? '#22c55e' : '#fff',
+            fontWeight: 800,
+            fontSize: '12px',
+            letterSpacing: '0.05em',
+            borderStyle: 'solid',
+            borderWidth: '1px',
+            borderColor: isSubscribed ? 'rgba(34,197,94,0.4)' : 'transparent',
+            transition: 'opacity 0.2s',
+          }}
+        >
+          {isSubscribed ? '✅ PREMIUM ALERTS ACTIVE' : '⚡ SUBSCRIBE TO PREMIUM ALERTS'}
+        </button>
+        {/*Turan End*/}
 
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex-1">
           <h4 className="text-sm font-bold text-cyan-400 mb-4 uppercase">System Announcements</h4>
@@ -424,6 +474,16 @@ function ResidentDashboard({ user, onLogout }) {
       )}
     </div>
     </div>
+    {/*Turan: Subscription Modal Render*/}
+    {showSubscribeModal && (
+      <ResidentSubscriptionModal
+        user={user}
+        onClose={() => setShowSubscribeModal(false)}
+        onSuccess={() => setIsSubscribed(true)}
+      />
+    )}
+    {/*Turan End*/}
+    </>
   );
 }
 
