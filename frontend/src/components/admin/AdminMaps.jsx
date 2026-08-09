@@ -48,6 +48,10 @@ const injectHatchPattern = () => {
 const STATUS_COLORS = {
   PENDING: '#f59e0b',
   ASSIGNED: '#0ea5e9',
+  // ahnaf start
+  ON_WAY: '#fb923c',
+  ON_SITE: '#a855f7',
+  // ahnaf end
   RESOLVED: '#22c55e',
   REPORTED: '#f59e0b',
 };
