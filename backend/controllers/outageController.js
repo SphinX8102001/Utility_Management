@@ -213,14 +213,53 @@ const upvoteOutage = async (req, res) => {
   }
 };
 
+// ahnaf start
+const VALID_CREW_STATUSES = ['ON_WAY', 'ON_SITE', 'RESOLVED'];
+
+const updateOutageStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!status || !VALID_CREW_STATUSES.includes(status)) {
+      return res.status(400).json({
+        error: `Invalid status. Must be one of: ${VALID_CREW_STATUSES.join(', ')}`
+      });
+    }
+
+    const updated = await Outage.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ error: 'Outage report not found.' });
+    }
+
+    return res.status(200).json({
+      message: `Outage status updated to ${status}.`,
+      report: updated
+    });
+
+  } catch (error) {
+    console.error('Status update error:', error);
+    return res.status(500).json({ error: 'Internal error updating outage status.' });
+  }
+};
+// ahnaf end
+
 module.exports = {
   getActiveOutages,
   createOutageReport,
   deleteOutageReport,
   assignTechnician,
   deleteOutage,
-  getAssignedTasks, 
-  resolveOutage,     
+  getAssignedTasks,
+  resolveOutage,
   getAllOutages,
-  upvoteOutage
+  upvoteOutage,
+  // ahnaf start
+  updateOutageStatus
+  // ahnaf end
 };

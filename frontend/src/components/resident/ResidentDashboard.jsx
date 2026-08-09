@@ -7,6 +7,25 @@ import { ResidentFAQView } from './ResidentFAQView';
 import ResidentSubscriptionModal from './ResidentSubscriptionModal';
 //Turan End
 
+// ahnaf start
+const STATUS_COLORS = {
+  PENDING:  '#f59e0b',
+  ASSIGNED: '#0ea5e9',
+  ON_WAY:   '#fb923c',
+  ON_SITE:  '#a855f7',
+  RESOLVED: '#22c55e',
+  REPORTED: '#f59e0b',
+};
+
+const STATUS_LABELS = {
+  PENDING:  'Pending Review',
+  ASSIGNED: 'Technician Assigned',
+  ON_WAY:   'Crew On The Way 🚗',
+  ON_SITE:  'Crew On Site 📍',
+  RESOLVED: 'Resolved ✓',
+};
+// ahnaf end
+
 function ResidentDashboard({ user, onLogout }) {
   const [outages, setOutages] = useState([]);
   const [selectedIncident, setSelectedIncident] = useState(null);
@@ -84,6 +103,10 @@ function ResidentDashboard({ user, onLogout }) {
 
   useEffect(() => {
     fetchMapMarkers();
+    // ahnaf start
+    const pollInterval = setInterval(fetchMapMarkers, 5000);
+    return () => clearInterval(pollInterval);
+    // ahnaf end
   }, []);
 
   const handleMapClick = (lat, lng) => {
@@ -197,6 +220,17 @@ function ResidentDashboard({ user, onLogout }) {
           <span className="font-bold text-cyan-400 mr-2">{outageItem.utilityType}</span>
           <span className="text-slate-400">{outageItem.locationName}</span>
         </div>
+        {/* ahnaf start */}
+        <span
+          className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+          style={{
+            backgroundColor: (STATUS_COLORS[outageItem.status] || '#aaa') + '22',
+            color: STATUS_COLORS[outageItem.status] || '#aaa',
+          }}
+        >
+          {STATUS_LABELS[outageItem.status] || outageItem.status}
+        </span>
+        {/* ahnaf end */}
         <span className="text-[10px] px-2 py-0.5 bg-emerald-950 text-emerald-400 rounded-full border border-emerald-800/50">
           👍 {outageItem.upvotes || 0}
         </span>
@@ -429,6 +463,20 @@ function ResidentDashboard({ user, onLogout }) {
                       <p className="text-xs"><strong>Location:</strong> {selectedIncident.locationName}</p>
                       <p className="text-xs"><strong>Reported By:</strong> {selectedIncident.reporterName}</p>
                       <p className="text-xs"><strong>Confirmations:</strong> <span className="text-emerald-400 font-bold">{selectedIncident.upvotes || 0} residents</span></p>
+                      {/* ahnaf start */}
+                      <p className="text-xs">
+                        <strong>Repair Status:</strong>{' '}
+                        <span
+                          className="text-xs font-bold px-2 py-0.5 rounded-full"
+                          style={{
+                            backgroundColor: (STATUS_COLORS[selectedIncident.status] || '#aaa') + '22',
+                            color: STATUS_COLORS[selectedIncident.status] || '#aaa',
+                          }}
+                        >
+                          {STATUS_LABELS[selectedIncident.status] || selectedIncident.status}
+                        </span>
+                      </p>
+                      {/* ahnaf end */}
                       <p className="text-xs italic bg-slate-950 p-3 border border-slate-800 rounded">"{selectedIncident.description}"</p>
                     </div>
 
