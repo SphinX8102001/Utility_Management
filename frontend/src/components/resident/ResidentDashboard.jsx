@@ -3,10 +3,10 @@ import { PreviewMap, FullMap, isInsideBangladesh } from './ResidentMapOverview';
 import { ResidentAnnouncementList } from './ResidentAnnouncementList';
 import { ResidentRegistryList } from './ResidentRegistryList';
 import { ResidentFAQView } from './ResidentFAQView';
-//NUSFAT: Complaint imports - Module 3
 import ComplaintForm from './ComplaintForm';
 import TrackComplaint from './TrackComplaint';
-//NUSFAT END
+import ChatbotPage from './ChatbotPage';
+
 
 //Turan: Resident Subscription Modal Import
 import ResidentSubscriptionModal from './ResidentSubscriptionModal';
@@ -249,6 +249,8 @@ function ResidentDashboard({ user, onLogout }) {
     //NUSFAT: Complaint tabs - Module 3
     { key: 'complaint', label: 'Bill Complaint' },
     { key: 'track', label: 'Track Complaint' },
+    //NUSFAT: Chatbot tab - Module 4
+    { key: 'chatbot', label: 'Support Chat' },
     //NUSFAT END
     { key: 'profile', label: 'Account Settings' },
   ];
@@ -384,7 +386,14 @@ function ResidentDashboard({ user, onLogout }) {
               </button>
             </form>
           </div>
+        
 
+        //NUSFAT: Chatbot tab content - Module 4
+        ) : activeTab === 'chatbot' ? (
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <ChatbotPage user={user} />
+          </div>
+        
         //NUSFAT: Complaint tab content - Module 3
         ) : activeTab === 'complaint' ? (
           <div className="flex-1 overflow-y-auto p-6">
