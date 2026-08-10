@@ -77,6 +77,15 @@ app.post('/api/supplies/shipment', recordShipment);
 app.get('/api/supplies/shipments', getShipmentHistory);
 app.put('/api/supplies/:id', updateSupply);
 
+
+//NUSFAT: Complaint Tracker Routes - Module 3
+const { submitComplaint, trackComplaint, getAllComplaints, updateComplaint } = require('./controllers/complaintController');
+
+app.post('/api/complaint/submit', submitComplaint);
+app.get('/api/complaint/track/:trackingId', trackComplaint);
+app.get('/api/complaint/all', getAllComplaints);
+app.patch('/api/complaint/update/:trackingId', updateComplaint);
+
 //NUSFAT: Banner Routes - Scroll Banner Publisher (Module 2)
 const Banner = require('./models/Banner');
 

@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import VerificationIDsPanel from './VerificationIDsPanel';
 import { PreviewMap, AdminFullMap } from './AdminMaps';
 import IncidentPanel from './IncidentPanel';
-//Nusfat: Banner Publisher Import
 import BannerPublisher from './BannerPublisher';
-//Nusfat End
+import ManagerComplaints from './ManagerComplaints';
 import AdminFaq from './AdminFaq';
 //Turan: Transaction Auditor Import
 import TransactionAuditor from './TransactionAuditor';
@@ -179,12 +178,11 @@ function AdminDashboard({ user, onLogout }) {
     { key: 'verification', label: 'Verification IDs' },
     //Nusfat: Banner Publisher Tab
     { key: 'banner', label: 'Banner Publisher' },
-    //Nusfat End
     { key: 'faq', label: 'FAQ Manager' },
-    //Turan: Transaction Auditor Tab - Control Manager
-    { key: 'auditor', label: 'Transaction Auditor' },
-    //Turan End
+    { key: 'complaints', label: 'Bill Complaints' },
+    { key: 'transactions', label: 'Transaction Auditor' },
   ];
+
   const renderedTabs = [];
   for (let i = 0; i < tabs.length; i++) {
     const tab = tabs[i];
@@ -325,18 +323,17 @@ function AdminDashboard({ user, onLogout }) {
         ) : activeTab === 'banner' ? (
           //Nusfat: Banner Publisher Tab Content
           <BannerPublisher />
-          //Nusfat End
+          
         ) : activeTab === 'faq' ? (
           <AdminFaq />
-        ) : activeTab === 'auditor' ? (
-          //Turan: Transaction Auditor Tab Content
-          <div className="flex-1 overflow-y-auto p-6">
-            <TransactionAuditor user={user} />
-          </div>
-          //Turan End
+        ) : activeTab === 'complaints' ? (
+          <ManagerComplaints />
+        ) : activeTab === 'transactions' ? (
+          <TransactionAuditor />
         ) : (
           <VerificationIDsPanel />
         )}
+
       </div>
 
       {showFullMap && (
