@@ -208,7 +208,19 @@ const exportTransactionsCSV = async (req, res) => {
 const getUserSubscription = async (req, res) => {
   try {
     const { userId } = req.params;
-    const subscriptions = await Transaction.find({ userId, status: 'VERIFIED' })
+    const mongoose = require('mongoose');
+
+    // Build a flexible query to match userId stored as ObjectId OR as string
+    const idQuery = [];
+    if (mongoose.Types.ObjectId.isValid(userId)) {
+      idQuery.push({ userId: new mongoose.Types.ObjectId(userId) });
+    }
+    idQuery.push({ userId: userId });
+
+    const subscriptions = await Transaction.find({
+      $or: idQuery,
+      status: 'VERIFIED',
+    })
       .sort({ createdAt: -1 })
       .limit(1);
 

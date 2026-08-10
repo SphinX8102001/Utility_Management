@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 
 const API = 'http://localhost:5000';
 const PLAN_PRICE_BDT = 150;
-const PLAN_PRICE_BDT = 150;
 const BKASH_MERCHANT = '01XXXXXXXXX'; // Placeholder merchant number
 
 export default function ResidentSubscriptionModal({ user, onClose, onSuccess }) {
@@ -30,7 +29,7 @@ export default function ResidentSubscriptionModal({ user, onClose, onSuccess }) 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: user?._id,
+          userId: user?.id || user?._id,
           username: user?.username || 'resident',
           phone: phone.trim(),
           amount: PLAN_PRICE_BDT,
