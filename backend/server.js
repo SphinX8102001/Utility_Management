@@ -78,6 +78,10 @@ app.get('/api/supplies/shipments', getShipmentHistory);
 app.put('/api/supplies/:id', updateSupply);
 
 
+//NUSFAT: Chatbot Route - Module 4 (Gemini AI)
+const { chat } = require('./controllers/chatbotController');
+app.post('/api/chatbot/chat', chat);
+
 //NUSFAT: Complaint Tracker Routes - Module 3
 const { submitComplaint, trackComplaint, getAllComplaints, updateComplaint } = require('./controllers/complaintController');
 
