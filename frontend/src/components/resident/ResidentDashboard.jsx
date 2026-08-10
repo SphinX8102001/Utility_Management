@@ -3,6 +3,10 @@ import { PreviewMap, FullMap, isInsideBangladesh } from './ResidentMapOverview';
 import { ResidentAnnouncementList } from './ResidentAnnouncementList';
 import { ResidentRegistryList } from './ResidentRegistryList';
 import { ResidentFAQView } from './ResidentFAQView';
+//NUSFAT: Complaint imports - Module 3
+import ComplaintForm from './ComplaintForm';
+import TrackComplaint from './TrackComplaint';
+//NUSFAT END
 
 function ResidentDashboard({ user, onLogout }) {
   const [outages, setOutages] = useState([]);
@@ -184,6 +188,10 @@ function ResidentDashboard({ user, onLogout }) {
   const navTabs = [
     { key: 'map', label: 'Monitor' },
     { key: 'faq', label: 'FAQs & Help' },
+    //NUSFAT: Complaint tabs - Module 3
+    { key: 'complaint', label: 'Bill Complaint' },
+    { key: 'track', label: 'Track Complaint' },
+    //NUSFAT END
     { key: 'profile', label: 'Account Settings' },
   ];
   const renderedNavTabs = [];
@@ -273,6 +281,18 @@ function ResidentDashboard({ user, onLogout }) {
               </button>
             </form>
           </div>
+
+        //NUSFAT: Complaint tab content - Module 3
+        ) : activeTab === 'complaint' ? (
+          <div className="flex-1 overflow-y-auto p-6">
+            <ComplaintForm />
+          </div>
+        ) : activeTab === 'track' ? (
+          <div className="flex-1 overflow-y-auto p-6">
+            <TrackComplaint />
+          </div>
+        //NUSFAT END
+        
         ) : activeTab === 'faq' ? (
           <div className="flex-1 flex flex-col">
             <div className="flex justify-between items-start mb-6">

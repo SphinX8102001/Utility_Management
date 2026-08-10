@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import VerificationIDsPanel from './VerificationIDsPanel';
 import { PreviewMap, AdminFullMap } from './AdminMaps';
 import IncidentPanel from './IncidentPanel';
-//Nusfat: Banner Publisher Import
 import BannerPublisher from './BannerPublisher';
-//Nusfat End
+import ManagerComplaints from './ManagerComplaints';
 import AdminFaq from './AdminFaq';
 
 const API = 'http://localhost:5000';
@@ -176,9 +175,11 @@ function AdminDashboard({ user, onLogout }) {
     { key: 'verification', label: 'Verification IDs' },
     //Nusfat: Banner Publisher Tab
     { key: 'banner', label: 'Banner Publisher' },
-    //Nusfat End
     { key: 'faq', label: 'FAQ Manager' },
+    //NUSFAT: Bill Complaints Tab
+    { key: 'complaints', label: 'Bill Complaints' },
   ];
+
   const renderedTabs = [];
   for (let i = 0; i < tabs.length; i++) {
     const tab = tabs[i];
@@ -319,12 +320,16 @@ function AdminDashboard({ user, onLogout }) {
         ) : activeTab === 'banner' ? (
           //Nusfat: Banner Publisher Tab Content
           <BannerPublisher />
-          //Nusfat End
+          
         ) : activeTab === 'faq' ? (
           <AdminFaq />
+        //NUSFAT: Bill Complaints Tab Content
+        ) : activeTab === 'complaints' ? (
+          <ManagerComplaints />
         ) : (
           <VerificationIDsPanel />
         )}
+
       </div>
 
       {showFullMap && (
