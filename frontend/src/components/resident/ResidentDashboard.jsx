@@ -259,30 +259,48 @@ function ResidentDashboard({ user, onLogout }) {
           LAUNCH FULL INTERACTIVE MAP
         </button>
 
-        {/*Turan: Premium Alerts Subscribe Button*/}
-        <button
-          onClick={() => setShowSubscribeModal(true)}
-          style={{
-            width: '100%',
-            padding: '12px',
-            borderRadius: '12px',
-            border: 'none',
-            cursor: 'pointer',
-            background: isSubscribed
-              ? 'rgba(34,197,94,0.15)'
-              : 'linear-gradient(135deg, #e40076, #818cf8)',
-            color: isSubscribed ? '#22c55e' : '#fff',
-            fontWeight: 800,
-            fontSize: '12px',
-            letterSpacing: '0.05em',
-            borderStyle: 'solid',
-            borderWidth: '1px',
-            borderColor: isSubscribed ? 'rgba(34,197,94,0.4)' : 'transparent',
-            transition: 'opacity 0.2s',
-          }}
-        >
-          {isSubscribed ? '✅ PREMIUM ALERTS ACTIVE' : '⚡ SUBSCRIBE TO PREMIUM ALERTS'}
-        </button>
+        {/*Turan: Premium Alerts Subscribe Button / Activated Badge*/}
+        {isSubscribed ? (
+          <div
+            style={{
+              width: '100%',
+              padding: '12px',
+              borderRadius: '12px',
+              background: 'rgba(34,197,94,0.12)',
+              border: '1px solid rgba(34,197,94,0.4)',
+              color: '#22c55e',
+              fontWeight: 800,
+              fontSize: '12px',
+              letterSpacing: '0.05em',
+              textAlign: 'center',
+              boxSizing: 'border-box',
+            }}
+          >
+            ✅ PREMIUM ACTIVATED
+          </div>
+        ) : (
+          <button
+            onClick={() => setShowSubscribeModal(true)}
+            style={{
+              width: '100%',
+              padding: '12px',
+              borderRadius: '12px',
+              border: 'none',
+              cursor: 'pointer',
+              background: 'linear-gradient(135deg, #e40076, #818cf8)',
+              color: '#fff',
+              fontWeight: 800,
+              fontSize: '12px',
+              letterSpacing: '0.05em',
+              borderStyle: 'solid',
+              borderWidth: '1px',
+              borderColor: 'transparent',
+              transition: 'opacity 0.2s',
+            }}
+          >
+            ⚡ SUBSCRIBE TO PREMIUM ALERTS
+          </button>
+        )}
         {/*Turan End*/}
 
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex-1">
