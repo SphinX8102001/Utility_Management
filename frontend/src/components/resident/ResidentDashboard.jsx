@@ -8,6 +8,29 @@ import ComplaintForm from './ComplaintForm';
 import TrackComplaint from './TrackComplaint';
 //NUSFAT END
 
+//Turan: Resident Subscription Modal Import
+import ResidentSubscriptionModal from './ResidentSubscriptionModal';
+//Turan End
+
+// ahnaf start
+const STATUS_COLORS = {
+  PENDING:  '#f59e0b',
+  ASSIGNED: '#0ea5e9',
+  ON_WAY:   '#fb923c',
+  ON_SITE:  '#a855f7',
+  RESOLVED: '#22c55e',
+  REPORTED: '#f59e0b',
+};
+
+const STATUS_LABELS = {
+  PENDING:  'Pending Review',
+  ASSIGNED: 'Technician Assigned',
+  ON_WAY:   'Crew On The Way 🚗',
+  ON_SITE:  'Crew On Site 📍',
+  RESOLVED: 'Resolved ✓',
+};
+// ahnaf end
+
 function ResidentDashboard({ user, onLogout }) {
   const [outages, setOutages] = useState([]);
   const [selectedIncident, setSelectedIncident] = useState(null);
@@ -15,6 +38,26 @@ function ResidentDashboard({ user, onLogout }) {
   const [showFullMap, setShowFullMap] = useState(false);
   const [isReporting, setIsReporting] = useState(false);
   const [activeTab, setActiveTab] = useState('map'); 
+  //Turan: Subscription modal state
+  const [showSubscribeModal, setShowSubscribeModal] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  useEffect(() => {
+    const checkSubscription = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/transactions/resident/${user?.id || user?._id}`);
+        const data = await res.json();
+        setIsSubscribed(data.hasActiveSubscription);
+      } catch (err) {
+        console.error('Failed to check subscription status', err);
+      }
+    };
+    checkSubscription();
+    // Poll every 10s in case admin approves it while resident is logged in
+    const interval = setInterval(checkSubscription, 10000);
+    return () => clearInterval(interval);
+  }, [user]);
+  //Turan End
   //NUSFAT: Banner state for System Announcements
   const [banners, setBanners] = useState([]);
 
@@ -65,6 +108,10 @@ function ResidentDashboard({ user, onLogout }) {
 
   useEffect(() => {
     fetchMapMarkers();
+    // ahnaf start
+    const pollInterval = setInterval(fetchMapMarkers, 5000);
+    return () => clearInterval(pollInterval);
+    // ahnaf end
   }, []);
 
   const handleMapClick = (lat, lng) => {
@@ -178,6 +225,17 @@ function ResidentDashboard({ user, onLogout }) {
           <span className="font-bold text-cyan-400 mr-2">{outageItem.utilityType}</span>
           <span className="text-slate-400">{outageItem.locationName}</span>
         </div>
+        {/* ahnaf start */}
+        <span
+          className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+          style={{
+            backgroundColor: (STATUS_COLORS[outageItem.status] || '#aaa') + '22',
+            color: STATUS_COLORS[outageItem.status] || '#aaa',
+          }}
+        >
+          {STATUS_LABELS[outageItem.status] || outageItem.status}
+        </span>
+        {/* ahnaf end */}
         <span className="text-[10px] px-2 py-0.5 bg-emerald-950 text-emerald-400 rounded-full border border-emerald-800/50">
           👍 {outageItem.upvotes || 0}
         </span>
@@ -215,6 +273,7 @@ function ResidentDashboard({ user, onLogout }) {
   const hasUpvoted = selectedIncident && selectedIncident.upvotedBy && selectedIncident.upvotedBy.includes(user.id);
 
   return (
+    <>
     <div className="min-h-screen bg-slate-950 text-white font-sans">
       <div className="p-6 flex gap-6">
       <div className="w-1/3 flex flex-col gap-6">
@@ -242,6 +301,50 @@ function ResidentDashboard({ user, onLogout }) {
         >
           LAUNCH FULL INTERACTIVE MAP
         </button>
+
+        {/*Turan: Premium Alerts Subscribe Button / Activated Badge*/}
+        {isSubscribed ? (
+          <div
+            style={{
+              width: '100%',
+              padding: '12px',
+              borderRadius: '12px',
+              background: 'rgba(34,197,94,0.12)',
+              border: '1px solid rgba(34,197,94,0.4)',
+              color: '#22c55e',
+              fontWeight: 800,
+              fontSize: '12px',
+              letterSpacing: '0.05em',
+              textAlign: 'center',
+              boxSizing: 'border-box',
+            }}
+          >
+            ✅ PREMIUM ACTIVATED
+          </div>
+        ) : (
+          <button
+            onClick={() => setShowSubscribeModal(true)}
+            style={{
+              width: '100%',
+              padding: '12px',
+              borderRadius: '12px',
+              border: 'none',
+              cursor: 'pointer',
+              background: 'linear-gradient(135deg, #e40076, #818cf8)',
+              color: '#fff',
+              fontWeight: 800,
+              fontSize: '12px',
+              letterSpacing: '0.05em',
+              borderStyle: 'solid',
+              borderWidth: '1px',
+              borderColor: 'transparent',
+              transition: 'opacity 0.2s',
+            }}
+          >
+            ⚡ SUBSCRIBE TO PREMIUM ALERTS
+          </button>
+        )}
+        {/*Turan End*/}
 
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex-1">
           <h4 className="text-sm font-bold text-cyan-400 mb-4 uppercase">System Announcements</h4>
@@ -399,6 +502,20 @@ function ResidentDashboard({ user, onLogout }) {
                       <p className="text-xs"><strong>Location:</strong> {selectedIncident.locationName}</p>
                       <p className="text-xs"><strong>Reported By:</strong> {selectedIncident.reporterName}</p>
                       <p className="text-xs"><strong>Confirmations:</strong> <span className="text-emerald-400 font-bold">{selectedIncident.upvotes || 0} residents</span></p>
+                      {/* ahnaf start */}
+                      <p className="text-xs">
+                        <strong>Repair Status:</strong>{' '}
+                        <span
+                          className="text-xs font-bold px-2 py-0.5 rounded-full"
+                          style={{
+                            backgroundColor: (STATUS_COLORS[selectedIncident.status] || '#aaa') + '22',
+                            color: STATUS_COLORS[selectedIncident.status] || '#aaa',
+                          }}
+                        >
+                          {STATUS_LABELS[selectedIncident.status] || selectedIncident.status}
+                        </span>
+                      </p>
+                      {/* ahnaf end */}
                       <p className="text-xs italic bg-slate-950 p-3 border border-slate-800 rounded">"{selectedIncident.description}"</p>
                     </div>
 
@@ -444,6 +561,16 @@ function ResidentDashboard({ user, onLogout }) {
       )}
     </div>
     </div>
+    {/*Turan: Subscription Modal Render*/}
+    {showSubscribeModal && (
+      <ResidentSubscriptionModal
+        user={user}
+        onClose={() => setShowSubscribeModal(false)}
+        onSuccess={() => setIsSubscribed(true)}
+      />
+    )}
+    {/*Turan End*/}
+    </>
   );
 }
 

@@ -3,6 +3,25 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents, GeoJSON } from 'r
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
+// ahnaf start
+const STATUS_COLORS = {
+  PENDING:  '#f59e0b',
+  ASSIGNED: '#0ea5e9',
+  ON_WAY:   '#fb923c',
+  ON_SITE:  '#a855f7',
+  RESOLVED: '#22c55e',
+  REPORTED: '#f59e0b',
+};
+
+const STATUS_LABELS = {
+  PENDING:  'Reported — Pending Review',
+  ASSIGNED: 'Technician Assigned',
+  ON_WAY:   'Crew On The Way 🚗',
+  ON_SITE:  'Crew On Site 📍',
+  RESOLVED: 'Resolved ✓',
+};
+// ahnaf end
+
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -190,6 +209,12 @@ export function FullMap({ outages, onMapClick, clickedPosition, setSelectedIncid
             <span style={{ fontSize: '11px', color: '#059669', fontWeight: 'bold' }}>
               Confirmed by {item.upvotes || 0} residents
             </span>
+            {/* ahnaf start */}
+            <br />
+            <span style={{ fontSize: '11px', fontWeight: 'bold', color: STATUS_COLORS[item.status] || '#aaa' }}>
+              ● {STATUS_LABELS[item.status] || item.status}
+            </span>
+            {/* ahnaf end */}
           </div>
         </Popup>
       </Marker>

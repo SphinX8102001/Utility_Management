@@ -4,11 +4,14 @@ const connectDatabase = require('./db');
 
 // Import controllers
 const { registerUser, loginUser, updateProfile, getTechnicians } = require('./controllers/authController');
-const { getActiveOutages, createOutageReport, deleteOutageReport, assignTechnician, deleteOutage, getAssignedTasks, resolveOutage, getAllOutages, upvoteOutage } = require('./controllers/outageController');
+const { getActiveOutages, createOutageReport, deleteOutageReport, assignTechnician, deleteOutage, getAssignedTasks, resolveOutage, getAllOutages, upvoteOutage, /* ahnaf start */ updateOutageStatus /* ahnaf end */ } = require('./controllers/outageController');
 const { generateVerificationId, listVerificationIds, revokeVerificationId } = require('./controllers/verificationController');
 const { getAllForumPosts, createForumPost, answerForumPost, updateForumPost, deleteForumPost, updateForumReply, deleteForumReply } = require('./controllers/forumController');
 const { getAllFaqs, createFaq, updateFaq, deleteFaq, getAllCategories, createCategory, deleteCategory } = require('./controllers/faqController');
-const { getAllSupplies, createSupply, recordShipment, getShipmentHistory } = require('./controllers/supplyController');
+const { getAllSupplies, createSupply, recordShipment, getShipmentHistory, updateSupply } = require('./controllers/supplyController');
+// Turan: Transaction Auditor Controller Import
+const { submitBkashPayment, getAuditorTransactions, verifyTransaction, exportTransactionsCSV, getUserSubscription } = require('./controllers/transactionController');
+// Turan End
 
 const app = express();
 
@@ -44,6 +47,9 @@ app.delete('/api/verification/revoke/:id', revokeVerificationId);
 //--- Technician Route Endpoints ---
 app.get('/api/outages/assigned/:technicianId', getAssignedTasks);
 app.post('/api/outages/resolve/:id', resolveOutage);
+// ahnaf start
+app.patch('/api/outages/status/:id', updateOutageStatus);
+// ahnaf end
 
 // --- TECHNICIAN FORUM ROUTE ENDPOINTS ---
 app.get('/api/forum/all', getAllForumPosts);
@@ -69,6 +75,7 @@ app.get('/api/supplies', getAllSupplies);
 app.post('/api/supplies/create', createSupply);
 app.post('/api/supplies/shipment', recordShipment);
 app.get('/api/supplies/shipments', getShipmentHistory);
+app.put('/api/supplies/:id', updateSupply);
 
 
 //NUSFAT: Complaint Tracker Routes - Module 3
@@ -153,6 +160,15 @@ app.patch('/api/user/toggle-status', async (req, res) => {
   }
 });
 //NUSFAT END
+
+// Turan: Transaction Auditor - Control Manager (Stripe & bKash Payment Verification)
+app.post('/api/transactions/bkash', submitBkashPayment);
+app.get('/api/transactions/auditor/all', getAuditorTransactions);
+app.patch('/api/transactions/auditor/verify/:id', verifyTransaction);
+app.get('/api/transactions/auditor/export', exportTransactionsCSV);
+app.get('/api/transactions/resident/:userId', getUserSubscription);
+// Turan End
+
 
 // --- STARTUP BOUNDARY ROUTINE ---
 const PORT = 5000;

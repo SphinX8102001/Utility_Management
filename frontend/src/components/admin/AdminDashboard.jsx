@@ -5,6 +5,9 @@ import IncidentPanel from './IncidentPanel';
 import BannerPublisher from './BannerPublisher';
 import ManagerComplaints from './ManagerComplaints';
 import AdminFaq from './AdminFaq';
+//Turan: Transaction Auditor Import
+import TransactionAuditor from './TransactionAuditor';
+//Turan End
 
 const API = 'http://localhost:5000';
 
@@ -176,8 +179,8 @@ function AdminDashboard({ user, onLogout }) {
     //Nusfat: Banner Publisher Tab
     { key: 'banner', label: 'Banner Publisher' },
     { key: 'faq', label: 'FAQ Manager' },
-    //NUSFAT: Bill Complaints Tab
     { key: 'complaints', label: 'Bill Complaints' },
+    { key: 'transactions', label: 'Transaction Auditor' },
   ];
 
   const renderedTabs = [];
@@ -323,9 +326,10 @@ function AdminDashboard({ user, onLogout }) {
           
         ) : activeTab === 'faq' ? (
           <AdminFaq />
-        //NUSFAT: Bill Complaints Tab Content
         ) : activeTab === 'complaints' ? (
           <ManagerComplaints />
+        ) : activeTab === 'transactions' ? (
+          <TransactionAuditor />
         ) : (
           <VerificationIDsPanel />
         )}
