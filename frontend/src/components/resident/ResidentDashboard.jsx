@@ -6,7 +6,7 @@ import { ResidentFAQView } from './ResidentFAQView';
 import ComplaintForm from './ComplaintForm';
 import TrackComplaint from './TrackComplaint';
 import ChatbotPage from './ChatbotPage';
-
+import { OutageHeatmap } from './OutageHeatmap';
 
 //Turan: Resident Subscription Modal Import
 import ResidentSubscriptionModal from './ResidentSubscriptionModal';
@@ -217,6 +217,7 @@ function ResidentDashboard({ user, onLogout }) {
   };
 
   const renderedOutageRows = [];
+
   for (let i = 0; i < outages.length; i++) {
     const outageItem = outages[i];
     renderedOutageRows.push(
@@ -245,6 +246,7 @@ function ResidentDashboard({ user, onLogout }) {
 
   const navTabs = [
     { key: 'map', label: 'Monitor' },
+    { key: 'heatmap', label: 'Outage Heatmap' },
     { key: 'faq', label: 'FAQs & Help' },
     //NUSFAT: Complaint tabs - Module 3
     { key: 'complaint', label: 'Bill Complaint' },
@@ -254,7 +256,9 @@ function ResidentDashboard({ user, onLogout }) {
     //NUSFAT END
     { key: 'profile', label: 'Account Settings' },
   ];
+
   const renderedNavTabs = [];
+
   for (let i = 0; i < navTabs.length; i++) {
     const tabItem = navTabs[i];
     renderedNavTabs.push(
@@ -387,6 +391,14 @@ function ResidentDashboard({ user, onLogout }) {
             </form>
           </div>
         
+        // Heatmap Tab Content
+        ) : activeTab === 'heatmap' ? (
+          <div className="flex-1 flex flex-col overflow-hidden">
+            ...
+           <div className="flex-1 overflow-y-auto">
+             <OutageHeatmap outages={outages} />
+            </div>
+          </div>
 
         //NUSFAT: Chatbot tab content - Module 4
         ) : activeTab === 'chatbot' ? (

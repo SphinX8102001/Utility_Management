@@ -8,6 +8,8 @@ import AdminFaq from './AdminFaq';
 //Turan: Transaction Auditor Import
 import TransactionAuditor from './TransactionAuditor';
 //Turan End
+//Heatmap: reuse the same grid heatmap component used on the resident side
+import { OutageHeatmap } from './OutageHeatmap';
 
 const API = 'http://localhost:5000';
 
@@ -174,6 +176,8 @@ function AdminDashboard({ user, onLogout }) {
 
   const tabs = [
     { key: 'map', label: 'Map View' },
+    //Heatmap: new Admin tab
+    { key: 'heatmap', label: 'Outage Heatmap' },
     { key: 'registry', label: 'Report Registry' },
     { key: 'verification', label: 'Verification IDs' },
     //Nusfat: Banner Publisher Tab
@@ -314,6 +318,11 @@ function AdminDashboard({ user, onLogout }) {
               <h5 className="text-[10px] font-bold text-slate-500 uppercase mb-3">Active Reports</h5>
               {mapActiveReports}
             </div>
+          </div>
+        ) : activeTab === 'heatmap' ? (
+          //Heatmap: Admin Outage Heatmap tab, reuses the resident-side OutageHeatmap component
+          <div className="flex flex-col gap-4 p-6 flex-1 overflow-hidden">
+            <OutageHeatmap outages={filteredOutages} />
           </div>
         ) : activeTab === 'registry' ? (
           <div className="flex-1 overflow-y-auto p-6 space-y-4">
