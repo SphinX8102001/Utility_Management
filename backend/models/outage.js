@@ -15,6 +15,13 @@ const outageSchema = new mongoose.Schema({
   assignedToName: { type: String, default: '' },  
   upvotes: { type: Number, default: 0 },
   upvotedBy: { type: [String], default: [] },
+  // Turan: Live Technician Location Tracking (Location Feature)
+  technicianLocation: {
+    latitude: { type: Number, default: null },
+    longitude: { type: Number, default: null },
+    updatedAt: { type: Date, default: null }
+  },
+  // Turan End
   createdAt: { type: Date, default: Date.now }
 });
 
