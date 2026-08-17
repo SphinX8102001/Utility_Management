@@ -23,17 +23,15 @@ export function TechForum({
   editPostOutageId, setEditPostOutageId,
   editingReplyId, setEditingReplyId,
   editReplyContent, setEditReplyContent,
-  handleCreateForumPost,
-  handleStartEditPost,
-  handleUpdateForumPost,
-  handleDeleteForumPost,
-  handleCreateReply,
-  handleStartEditReply,
-  handleUpdateReply,
-  handleDeleteReply
+  createForumPost,
+  updateForumPost,
+  deleteForumPost,
+  answerForumPost,
+  updateForumReply,
+  deleteForumReply
 }) {
 
-  // Loop 1: Unroll task dropdown selection options for creating a post
+  // Unroll task dropdown selection options for creating a post
   const taskOptions = [];
   for (let i = 0; i < tasks.length; i++) {
     const t = tasks[i];
@@ -44,8 +42,7 @@ export function TechForum({
     );
   }
 
-
-  // Loop 2: Unroll task dropdown selection options inside the inline post editor
+  // Unroll task dropdown selection options inside the inline post editor
   const editTaskOptions = [];
   for (let i = 0; i < tasks.length; i++) {
     const t = tasks[i];
@@ -56,13 +53,12 @@ export function TechForum({
     );
   }
 
-
-  // Loop 3: Process and build the main forum thread feed
+  // Process and build the main forum thread feed
   const renderedForumPosts = [];
   for (let i = 0; i < forumPosts.length; i++) {
     const post = forumPosts[i];
 
-    // Loop 4: Process and build sub-collection array of replies for this specific post
+    // Process and build sub-collection array of replies for this specific post
     const renderedReplies = [];
     if (post.answers) {
       for (let j = 0; j < post.answers.length; j++) {
@@ -81,12 +77,14 @@ export function TechForum({
                 />
                 <div className="flex gap-2">
                   <button
-                    onClick={() => handleUpdateReply(reply._id)}
+                    type="button"
+                    onClick={() => updateForumReply(reply._id)}
                     className="px-2 py-0.5 bg-green-700 text-[10px] font-bold rounded"
                   >
                     SAVE
                   </button>
                   <button
+                    type="button"
                     onClick={() => setEditingReplyId(null)}
                     className="px-2 py-0.5 bg-slate-800 text-[10px] font-bold rounded"
                   >
@@ -105,8 +103,23 @@ export function TechForum({
                   </span>
                   {reply.authorId === user.id && (
                     <div className="flex gap-2 text-[9px]">
-                      <button onClick={() => handleStartEditReply(reply)} className="text-amber-500 hover:underline">EDIT</button>
-                      <button onClick={() => handleDeleteReply(reply._id)} className="text-red-400 hover:underline">DELETE</button>
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          setEditingReplyId(reply._id);
+                          setEditReplyContent(reply.content);
+                        }} 
+                        className="text-amber-500 hover:underline"
+                      >
+                        EDIT
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => deleteForumReply(reply._id)} 
+                        className="text-red-400 hover:underline"
+                      >
+                        DELETE
+                      </button>
                     </div>
                   )}
                 </div>
@@ -158,7 +171,7 @@ export function TechForum({
             <div className="flex gap-2">
               <button 
                 type="button"
-                onClick={() => handleUpdateForumPost(post._id)}
+                onClick={() => updateForumPost(post._id)}
                 className="px-3 py-1 bg-green-700 text-xs font-bold rounded hover:bg-green-600"
               >
                 SAVE MODIFICATIONS
@@ -185,13 +198,21 @@ export function TechForum({
               {post.askedById === user.id && (
                 <div className="flex gap-2">
                   <button
-                    onClick={() => handleStartEditPost(post)}
+                    type="button"
+                    onClick={() => {
+                      setEditingPostId(post._id);
+                      setEditPostTitle(post.title);
+                      setEditPostCategory(post.category);
+                      setEditPostContent(post.questionContent);
+                      setEditPostOutageId(post.outageId ? post.outageId._id : '');
+                    }}
                     className="text-[10px] text-amber-500 hover:underline bg-slate-900 px-2 py-1 rounded border border-slate-800"
                   >
                     EDIT
                   </button>
                   <button
-                    onClick={() => handleDeleteForumPost(post._id)}
+                    type="button"
+                    onClick={() => deleteForumPost(post._id)}
                     className="text-[10px] text-red-400 hover:underline bg-slate-900 px-2 py-1 rounded border border-slate-800"
                   >
                     DELETE
@@ -244,7 +265,7 @@ export function TechForum({
             />
             <button
               type="button"
-              onClick={() => handleCreateReply(post._id)}
+              onClick={() => answerForumPost(post._id)}
               className="px-4 bg-slate-800 hover:bg-cyan-700 hover:text-white border border-slate-700 text-slate-300 text-xs font-bold rounded transition-all"
             >
               SUBMIT
@@ -256,11 +277,10 @@ export function TechForum({
     );
   }
 
-
   return (
     <div className="flex-1 overflow-y-auto p-6 space-y-6">
       
-      <form onSubmit={handleCreateForumPost} className="bg-slate-950 border border-slate-800 p-5 rounded-2xl space-y-4">
+      <form onSubmit={createForumPost} className="bg-slate-950 border border-slate-800 p-5 rounded-2xl space-y-4">
         <h3 className="text-sm font-black text-cyan-400 uppercase tracking-wider">Ask Fellow Technicians For Help</h3>
         
         <div className="grid grid-cols-2 gap-4">

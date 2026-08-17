@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { MapContainer, TileLayer, Rectangle, Tooltip } from 'react-leaflet';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import 'leaflet/dist/leaflet.css';
 
 const DHAKA_CENTER = [23.8103, 90.4125];
@@ -34,8 +36,134 @@ function densityColor(ratio) {
   return `rgb(${r},${g},${b})`;
 }
 
-export function OutageHeatmap({ outages }) {
+export function OutageHeatmap({ outages = [] }) {
   const [loading, setLoading] = useState(false);
+
+  // Calculate statistics for display and PDF export
+  const stats = useMemo(() => {
+    const totalOutages = outages.length;
+    if (totalOutages === 0) {
+      return { totalOutages: 0, utilityCounts: {}, utilityPercentages: {}, topLocations: [] };
+    }
+
+    const utilityCounts = {};
+    const locationCounts = {};
+
+    for (let i = 0; i < outages.length; i++) {
+      const item = outages[i];
+      const type = item.utilityType || 'Unknown';
+      const loc = item.locationName || 'Unspecified Location';
+
+      utilityCounts[type] = (utilityCounts[type] || 0) + 1;
+      locationCounts[loc] = (locationCounts[loc] || 0) + 1;
+    }
+
+    const utilityPercentages = {};
+    const utilityKeys = Object.keys(utilityCounts);
+    for (let i = 0; i < utilityKeys.length; i++) {
+      const key = utilityKeys[i];
+      utilityPercentages[key] = ((utilityCounts[key] / totalOutages) * 100).toFixed(1);
+    }
+
+    const topLocations = Object.keys(locationCounts)
+      .map((loc) => ({
+        location: loc,
+        count: locationCounts[loc],
+        percentage: ((locationCounts[loc] / totalOutages) * 100).toFixed(1),
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    return {
+      totalOutages,
+      utilityCounts,
+      utilityPercentages,
+      topLocations,
+    };
+  }, [outages]);
+
+  const handleExportPDF = () => {
+    setLoading(true);
+
+    try {
+      const doc = new jsPDF();
+      const dateStr = new Date().toLocaleString();
+
+      // Header Banner
+      doc.setFillColor(15, 23, 42); // slate-900
+      doc.rect(0, 0, 210, 30, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Utility Outage Analytics Report', 14, 18);
+
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(148, 163, 184);
+      doc.text(`Generated on: ${dateStr}`, 14, 25);
+
+      // Section 1: Summary Overview
+      doc.setTextColor(15, 23, 42);
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      doc.text('1. Overview', 14, 40);
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Total Reported Incidents: ${stats.totalOutages}`, 14, 47);
+
+      // Section 2: Breakdown by Utility Type
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      doc.text('2. Outage Distribution by Utility Type', 14, 60);
+
+      const utilityRows = [];
+      const utilityKeys = Object.keys(stats.utilityCounts);
+      for (let i = 0; i < utilityKeys.length; i++) {
+        const type = utilityKeys[i];
+        utilityRows.push([
+          type,
+          stats.utilityCounts[type],
+          `${stats.utilityPercentages[type]}%`,
+        ]);
+      }
+
+      autoTable(doc, {
+        startY: 65,
+        head: [['Utility Type', 'Total Incidents', 'Percentage Ratio']],
+        body: utilityRows,
+        theme: 'striped',
+        headStyles: { fillColor: [14, 116, 144] }, // cyan-700
+      });
+
+      // Section 3: Top Affected Locations
+      const nextY = doc.lastAutoTable.finalY + 15;
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      doc.text('3. Top Affected Areas', 14, nextY);
+
+      const locationRows = [];
+      for (let i = 0; i < stats.topLocations.length; i++) {
+        const item = stats.topLocations[i];
+        locationRows.push([item.location, item.count, `${item.percentage}%`]);
+      }
+
+      autoTable(doc, {
+        startY: nextY + 5,
+        head: [['Location Area', 'Incident Count', 'Share of Total Outages']],
+        body: locationRows,
+        theme: 'striped',
+        headStyles: { fillColor: [30, 41, 59] }, // slate-800
+      });
+
+      // Save PDF
+      doc.save(`Outage_Analytics_Report_${Date.now()}.pdf`);
+    } catch (err) {
+      console.error('Failed to generate PDF:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleExportHeatmap = (format) => {
     setLoading(true);
@@ -116,15 +244,22 @@ export function OutageHeatmap({ outages }) {
         </div>
         <div className="flex gap-2">
           <button
+            onClick={handleExportPDF}
+            disabled={loading || outages.length === 0}
+            className="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-lg transition-all disabled:opacity-50"
+          >
+            Export PDF Report
+          </button>
+          <button
             onClick={() => handleExportHeatmap('csv')}
-            disabled={loading}
+            disabled={loading || outages.length === 0}
             className="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold rounded-lg transition-all disabled:opacity-50"
           >
             Export CSV
           </button>
           <button
             onClick={() => handleExportHeatmap('json')}
-            disabled={loading}
+            disabled={loading || outages.length === 0}
             className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-lg transition-all disabled:opacity-50"
           >
             Export JSON
@@ -132,7 +267,7 @@ export function OutageHeatmap({ outages }) {
         </div>
       </div>
 
-      {/* Fixed height instead of flex-1/minHeight so Leaflet always gets a real pixel height at mount */}
+      {/* Fixed height so Leaflet always gets a real pixel height at mount */}
       <div className="rounded-2xl overflow-hidden border border-slate-800 relative" style={{ height: '500px' }}>
         <MapContainer
           center={DHAKA_CENTER}
