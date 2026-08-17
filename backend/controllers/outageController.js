@@ -159,7 +159,7 @@ const getAllOutages = async (req, res) => {
   }
 };
 
-// Turan: Community Upvote Outage Controller 
+// Turan: Community Upvote Outage Controller
 const upvoteOutage = async (req, res) => {
   try {
     const { id } = req.params;
