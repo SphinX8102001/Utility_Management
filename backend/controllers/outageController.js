@@ -159,6 +159,7 @@ const getAllOutages = async (req, res) => {
   }
 };
 
+// Turan: Community Upvote Outage Controller (Feature 1)
 const upvoteOutage = async (req, res) => {
   try {
     const { id } = req.params;

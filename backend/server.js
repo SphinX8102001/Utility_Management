@@ -27,14 +27,14 @@ app.post('/api/auth/register', registerUser);
 app.post('/api/auth/login', loginUser);
 app.post('/api/user/update', updateProfile);
 
-// Turan: Resident Outage Reporting & Community Upvote System (Feature 1)
 app.get('/api/outages/active', getActiveOutages);
 app.post('/api/outages/report', createOutageReport);
 app.delete('/api/outages/delete/:id', deleteOutageReport);
+
+// Turan: Community Upvote System (Feature 1)
 app.post('/api/outages/upvote/:id', upvoteOutage);
 // Turan End
 
-// Turan: Outage Dispatch & Emergency Resolution Management (Feature 2)
 app.get('/api/users/technicians', getTechnicians);
 app.post('/api/outages/assign', assignTechnician);
 app.delete('/api/outages/admin/delete/:id', deleteOutage);
