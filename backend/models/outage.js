@@ -15,6 +15,9 @@ const outageSchema = new mongoose.Schema({
   assignedToName: { type: String, default: '' },  
   upvotes: { type: Number, default: 0 },
   upvotedBy: { type: [String], default: [] },
+  // --- Resident review left by reporter after outage is resolved ---
+  userRating: { type: Number, default: 0, min: 0, max: 5 },
+  userComment: { type: String, default: '' },
   createdAt: { type: Date, default: Date.now }
 });
 

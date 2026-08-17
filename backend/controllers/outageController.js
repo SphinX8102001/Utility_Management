@@ -250,6 +250,52 @@ const updateOutageStatus = async (req, res) => {
 };
 // ahnaf end
 
+// --- SUBMIT RESIDENT REVIEW FOR A RESOLVED OUTAGE ---
+const submitOutageReview = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId, rating, comment } = req.body;
+
+    if (!userId || !rating) {
+      return res.status(400).json({ error: 'userId and rating are required.' });
+    }
+
+    const numericRating = Number(rating);
+    if (!Number.isInteger(numericRating) || numericRating < 1 || numericRating > 5) {
+      return res.status(400).json({ error: 'Rating must be a whole number between 1 and 5.' });
+    }
+
+    const outage = await Outage.findById(id);
+    if (!outage) {
+      return res.status(404).json({ error: 'Outage report not found.' });
+    }
+
+    // Only the resident who filed the report can review it
+    if (outage.reporterId !== userId) {
+      return res.status(403).json({ error: 'Only the original reporter can review this outage.' });
+    }
+
+    // Reviews are only allowed once the job is marked resolved
+    if (outage.status !== 'RESOLVED') {
+      return res.status(400).json({ error: 'This outage must be resolved before it can be reviewed.' });
+    }
+
+    outage.userRating = numericRating;
+    outage.userComment = comment || '';
+
+    await outage.save();
+
+    return res.status(200).json({
+      message: 'Review submitted successfully.',
+      report: outage
+    });
+
+  } catch (error) {
+    console.error('Review submission error:', error);
+    return res.status(500).json({ error: 'Internal error submitting review.' });
+  }
+};
+
 module.exports = {
   getActiveOutages,
   createOutageReport,
@@ -260,6 +306,7 @@ module.exports = {
   resolveOutage,
   getAllOutages,
   upvoteOutage,
+  submitOutageReview,
   // ahnaf start
   updateOutageStatus
   // ahnaf end
