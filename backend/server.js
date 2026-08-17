@@ -1,6 +1,3 @@
-// ahnaf start
-require('dotenv').config();
-// ahnaf end
 const express = require('express');
 const cors = require('cors');
 const connectDatabase = require('./db');
@@ -30,13 +27,14 @@ app.post('/api/auth/register', registerUser);
 app.post('/api/auth/login', loginUser);
 app.post('/api/user/update', updateProfile);
 
-// --- RESIDENT MAP ROUTE ENDPOINTS ---
+// Turan: Resident Outage Reporting & Community Upvote System (Feature 1)
 app.get('/api/outages/active', getActiveOutages);
 app.post('/api/outages/report', createOutageReport);
 app.delete('/api/outages/delete/:id', deleteOutageReport);
 app.post('/api/outages/upvote/:id', upvoteOutage);
+// Turan End
 
-// --- ADMIN ROUTE ENDPOINTS ---
+// Turan: Outage Dispatch & Emergency Resolution Management (Feature 2)
 app.get('/api/users/technicians', getTechnicians);
 app.post('/api/outages/assign', assignTechnician);
 app.delete('/api/outages/admin/delete/:id', deleteOutage);
@@ -50,9 +48,6 @@ app.delete('/api/verification/revoke/:id', revokeVerificationId);
 //--- Technician Route Endpoints ---
 app.get('/api/outages/assigned/:technicianId', getAssignedTasks);
 app.post('/api/outages/resolve/:id', resolveOutage);
-// ahnaf start
-app.patch('/api/outages/status/:id', updateOutageStatus);
-// ahnaf end
 
 // --- TECHNICIAN FORUM ROUTE ENDPOINTS ---
 app.get('/api/forum/all', getAllForumPosts);
@@ -118,7 +113,7 @@ app.post('/api/banner/post', async (req, res) => {
       });
 
       const residents = await User.find({ role: 'resident' }, 'email name');
-      
+
       for (const resident of residents) {
         await transporter.sendMail({
           from: `"Utilix Emergency Alert" <${process.env.EMAIL_USER}>`,
@@ -140,9 +135,9 @@ app.post('/api/banner/post', async (req, res) => {
       console.log(`Emergency email sent to ${residents.length} residents`);
     } catch (emailError) {
       console.error('Email sending failed:', emailError.message);
-      
+
     }
-    
+
 
     res.status(201).json(banner);
   } catch (error) {
@@ -220,7 +215,9 @@ app.get('/api/transactions/resident/:userId', getUserSubscription);
 
 
 // --- STARTUP BOUNDARY ROUTINE ---
+// Turan: Port configured to 1235 (Student ID: 22201235) for API Assignment
 const PORT = 5000;
 app.listen(PORT, () => {
   console.log('Utilix Secure Network Server active and executing on Port: ' + PORT);
 });
+// Turan End
