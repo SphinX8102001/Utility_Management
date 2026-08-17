@@ -1,3 +1,6 @@
+// ahnaf start
+require('dotenv').config();
+// ahnaf end
 const express = require('express');
 const cors = require('cors');
 const connectDatabase = require('./db');
