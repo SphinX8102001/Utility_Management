@@ -1,12 +1,11 @@
 require('dotenv').config({ override: true });
-
 const express = require('express');
 const cors = require('cors');
 const connectDatabase = require('./db');
 
 // Import controllers
 const { registerUser, loginUser, updateProfile, getTechnicians } = require('./controllers/authController');
-const { getActiveOutages, createOutageReport, deleteOutageReport, assignTechnician, deleteOutage, getAssignedTasks, resolveOutage, getAllOutages, upvoteOutage } = require('./controllers/outageController');
+const { getActiveOutages, createOutageReport, deleteOutageReport, assignTechnician, deleteOutage, getAssignedTasks, resolveOutage, getAllOutages, upvoteOutage, /* ahnaf start */ updateOutageStatus /* ahnaf end */ } = require('./controllers/outageController');
 const { generateVerificationId, listVerificationIds, revokeVerificationId } = require('./controllers/verificationController');
 const { getAllForumPosts, createForumPost, answerForumPost, updateForumPost, deleteForumPost, updateForumReply, deleteForumReply } = require('./controllers/forumController');
 const { getAllFaqs, createFaq, updateFaq, deleteFaq, getAllCategories, createCategory, deleteCategory } = require('./controllers/faqController');
@@ -29,14 +28,14 @@ app.post('/api/auth/register', registerUser);
 app.post('/api/auth/login', loginUser);
 app.post('/api/user/update', updateProfile);
 
-// Turan: Resident Outage Reporting & Community Upvote System (Feature 1)
 app.get('/api/outages/active', getActiveOutages);
 app.post('/api/outages/report', createOutageReport);
 app.delete('/api/outages/delete/:id', deleteOutageReport);
+
+// Turan: Community Upvote System (Feature 1)
 app.post('/api/outages/upvote/:id', upvoteOutage);
 // Turan End
 
-// Turan: Outage Dispatch & Emergency Resolution Management (Feature 2)
 app.get('/api/users/technicians', getTechnicians);
 app.post('/api/outages/assign', assignTechnician);
 app.delete('/api/outages/admin/delete/:id', deleteOutage);
@@ -50,8 +49,8 @@ app.delete('/api/verification/revoke/:id', revokeVerificationId);
 //--- Technician Route Endpoints ---
 app.get('/api/outages/assigned/:technicianId', getAssignedTasks);
 app.post('/api/outages/resolve/:id', resolveOutage);
-// ahnaf start - updateOutageStatus not in turan branch, pending merge from main
-// app.patch('/api/outages/status/:id', updateOutageStatus);
+// ahnaf start
+app.patch('/api/outages/status/:id', updateOutageStatus);
 // ahnaf end
 
 // --- TECHNICIAN FORUM ROUTE ENDPOINTS ---
@@ -80,6 +79,19 @@ app.post('/api/supplies/shipment', recordShipment);
 app.get('/api/supplies/shipments', getShipmentHistory);
 app.put('/api/supplies/:id', updateSupply);
 
+
+//NUSFAT: Chatbot Route - Module 4 (Gemini AI)
+const { chat } = require('./controllers/chatbotController');
+app.post('/api/chatbot/chat', chat);
+
+//NUSFAT: Complaint Tracker Routes - Module 3
+const { submitComplaint, trackComplaint, getAllComplaints, updateComplaint } = require('./controllers/complaintController');
+
+app.post('/api/complaint/submit', submitComplaint);
+app.get('/api/complaint/track/:trackingId', trackComplaint);
+app.get('/api/complaint/all', getAllComplaints);
+app.patch('/api/complaint/update/:trackingId', updateComplaint);
+
 //NUSFAT: Banner Routes - Scroll Banner Publisher (Module 2)
 const Banner = require('./models/Banner');
 
@@ -88,7 +100,49 @@ app.post('/api/banner/post', async (req, res) => {
   const { message } = req.body;
   try {
     if (!message) return res.status(400).json({ message: 'Message is required' });
+    //NUSFAT: Removed auto-deactivate so old banners stay active
     const banner = await Banner.create({ message });
+
+    //NUSFAT: Send email to all registered residents
+    try {
+      const nodemailer = require('nodemailer');
+      const User = require('./models/user');
+
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS
+        }
+      });
+
+      const residents = await User.find({ role: 'resident' }, 'email name');
+
+      for (const resident of residents) {
+        await transporter.sendMail({
+          from: `"Utilix Emergency Alert" <${process.env.EMAIL_USER}>`,
+          to: resident.email,
+          subject: '🚨 Emergency Utility Announcement',
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0f172a; color: white; padding: 30px; border-radius: 12px;">
+              <h1 style="color: #ef4444; margin-bottom: 10px;">🚨 Emergency Announcement</h1>
+              <p style="color: #94a3b8; font-size: 14px;">Dear ${resident.name},</p>
+              <div style="background: #1e293b; border-left: 4px solid #ef4444; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <p style="color: white; font-size: 16px; margin: 0;">${message}</p>
+              </div>
+              <p style="color: #94a3b8; font-size: 12px;">This is an automated emergency alert from Utilix Management System.</p>
+              <p style="color: #94a3b8; font-size: 12px;">Please log in to your account for more details and updates.</p>
+            </div>
+          `
+        });
+      }
+      console.log(`Emergency email sent to ${residents.length} residents`);
+    } catch (emailError) {
+      console.error('Email sending failed:', emailError.message);
+
+    }
+
+
     res.status(201).json(banner);
   } catch (error) {
     res.status(500).json({ message: error.message });

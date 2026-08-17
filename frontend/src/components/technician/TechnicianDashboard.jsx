@@ -9,6 +9,10 @@ import ShiftToggle from './ShiftToggle';
 const STATUS_COLORS = {
   PENDING: '#f59e0b',
   ASSIGNED: '#0ea5e9',
+  // ahnaf start
+  ON_WAY: '#fb923c',
+  ON_SITE: '#a855f7',
+  // ahnaf end
   RESOLVED: '#22c55e',
   REPORTED: '#f59e0b',
 };
@@ -82,6 +86,28 @@ function TechnicianDashboard({ user, onLogout }) {
       })
       .catch((err) => console.error('Resolve error:', err));
   };
+
+  // ahnaf start
+  const handleUpdateStatus = (id, newStatus) => {
+    const labels = { ON_WAY: 'On Way', ON_SITE: 'On Site', RESOLVED: 'Resolved' };
+    if (!window.confirm(`Update task status to "${labels[newStatus] || newStatus}"?`)) return;
+    fetch(`${API}/api/outages/status/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.report) {
+          setSelectedIncident((prev) =>
+            prev && prev._id === id ? data.report : prev
+          );
+          fetchTasks();
+        }
+      })
+      .catch((err) => console.error('Status update error:', err));
+  };
+  // ahnaf end
 
   // --- FORUM OPERATIONS CRUDS ---
   const handleCreateForumPost = (e) => {
@@ -229,7 +255,9 @@ function TechnicianDashboard({ user, onLogout }) {
 
   const stats = {
     total: tasks.length,
-    assigned: tasks.filter((t) => t.status === 'ASSIGNED').length,
+    // ahnaf start
+    active: tasks.filter((t) => ['ASSIGNED', 'ON_WAY', 'ON_SITE'].includes(t.status)).length,
+    // ahnaf end
     resolved: tasks.filter((t) => t.status === 'RESOLVED').length,
   };
 
@@ -237,7 +265,9 @@ function TechnicianDashboard({ user, onLogout }) {
   // Loop 1: Sidebar Stats Layout Generation
   const rawStatsData = [
     { label: 'Total Tasks', value: stats.total, color: 'text-white' },
-    { label: 'Assigned', value: stats.assigned, color: 'text-cyan-400' },
+    // ahnaf start
+    { label: 'Active', value: stats.active, color: 'text-cyan-400' },
+    // ahnaf end
     { label: 'Resolved', value: stats.resolved, color: 'text-green-400' },
   ];
   const renderedSidebarStats = [];
@@ -253,7 +283,9 @@ function TechnicianDashboard({ user, onLogout }) {
 
 
   // Loop 2: Status Filter Sidebar Buttons Generation
-  const statusOptions = ['ALL', 'ASSIGNED', 'RESOLVED'];
+  // ahnaf start
+  const statusOptions = ['ALL', 'ASSIGNED', 'ON_WAY', 'ON_SITE', 'RESOLVED'];
+  // ahnaf end
   const renderedFilterButtons = [];
   for (let i = 0; i < statusOptions.length; i++) {
     const s = statusOptions[i];
@@ -378,6 +410,9 @@ function TechnicianDashboard({ user, onLogout }) {
               setShowFullMap={setShowFullMap}
               setActiveTab={setActiveTab}
               handleMarkResolved={handleMarkResolved}
+              // ahnaf start
+              handleUpdateStatus={handleUpdateStatus}
+              // ahnaf end
             />
           </div>
         //Nusfat: Duty Status Tab Content
@@ -452,6 +487,9 @@ function TechnicianDashboard({ user, onLogout }) {
                   // Turan: Pass current user to TaskPanel for chat identification (Chat Feature)
                   currentUser={user}
                   // Turan End
+                  // ahnaf start
+                  onUpdateStatus={handleUpdateStatus}
+                  // ahnaf end
                 />
               </div>
             </div>
@@ -463,6 +501,9 @@ function TechnicianDashboard({ user, onLogout }) {
                 setShowFullMap={setShowFullMap}
                 setActiveTab={setActiveTab}
                 handleMarkResolved={handleMarkResolved}
+                // ahnaf start
+                handleUpdateStatus={handleUpdateStatus}
+                // ahnaf end
               />
             </div>
           )}
