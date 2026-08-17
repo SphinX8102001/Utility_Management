@@ -1,7 +1,5 @@
-<<<<<<< Updated upstream
-=======
 require('dotenv').config({ override: true });
->>>>>>> Stashed changes
+
 const express = require('express');
 const cors = require('cors');
 const connectDatabase = require('./db');
@@ -52,13 +50,9 @@ app.delete('/api/verification/revoke/:id', revokeVerificationId);
 //--- Technician Route Endpoints ---
 app.get('/api/outages/assigned/:technicianId', getAssignedTasks);
 app.post('/api/outages/resolve/:id', resolveOutage);
-<<<<<<< Updated upstream
-=======
-// ahnaf start
-app.patch('/api/outages/status/:id', updateOutageStatus);
+// ahnaf start - updateOutageStatus not in turan branch, pending merge from main
+// app.patch('/api/outages/status/:id', updateOutageStatus);
 // ahnaf end
-// Turan End
->>>>>>> Stashed changes
 
 // --- TECHNICIAN FORUM ROUTE ENDPOINTS ---
 app.get('/api/forum/all', getAllForumPosts);
