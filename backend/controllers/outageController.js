@@ -14,15 +14,15 @@ const getActiveOutages = async (req, res) => {
 // --- SUBMIT NEW OUTAGE COMPLAINT LOGIC ROUTINE (FR-02) ---
 const createOutageReport = async (req, res) => {
   try {
-    const { 
-      utilityType, 
-      locationName, 
-      latitude, 
-      longitude, 
-      description, 
-      estimatedRestoration, 
-      reporterId, 
-      reporterName 
+    const {
+      utilityType,
+      locationName,
+      latitude,
+      longitude,
+      description,
+      estimatedRestoration,
+      reporterId,
+      reporterName
     } = req.body;
 
     if (!utilityType || !locationName || !latitude || !longitude || !description || !reporterId || !reporterName) {
@@ -159,6 +159,7 @@ const getAllOutages = async (req, res) => {
   }
 };
 
+// Turan: Community Upvote Outage Controller
 const upvoteOutage = async (req, res) => {
   try {
     const { id } = req.params;
@@ -212,7 +213,7 @@ const upvoteOutage = async (req, res) => {
     return res.status(500).json({ error: 'Internal server error processing upvote.' });
   }
 };
-
+//Turan End
 // ahnaf start
 const VALID_CREW_STATUSES = ['ON_WAY', 'ON_SITE', 'RESOLVED'];
 

@@ -26,6 +26,11 @@ function App() {
   const [employeeId, setEmployeeId] = useState('');
   const [auditorId, setAuditorId] = useState('');
 
+  // ahnaf start
+  // Loading state to show spinner while email verification + registration is processing
+  const [isLoading, setIsLoading] = useState(false);
+  // ahnaf end
+
   // --- SUBMISSION HANDLER ---
   const handleAuthAction = async (e) => {
     e.preventDefault();
@@ -44,6 +49,9 @@ function App() {
       };
       
       try {
+        // ahnaf start
+        setIsLoading(true);
+        // ahnaf end
         const response = await fetch('http://localhost:5000/api/auth/register', {
           method: 'POST',
           headers: {
@@ -73,7 +81,11 @@ function App() {
       } catch (error) {
         console.error("Network interface connection failure:", error);
         alert("Could not establish a secure connection link with backend node.");
+      // ahnaf start
+      } finally {
+        setIsLoading(false);
       }
+      // ahnaf end
       
     } else {
       // --- REAL DATABASE LOGIN FLOW ---
@@ -302,9 +314,27 @@ function App() {
 
               {/* Dynamic Submission Buttons */}
               <div className="pt-2">
-                <button type="submit" className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold rounded-xl transition-all duration-300 shadow-lg shadow-cyan-500/10 active:scale-[0.99]">
-                  {isRegistering ? 'Register' : 'Login'}
+                {/* ahnaf start */}
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className={`w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold rounded-xl transition-all duration-300 shadow-lg shadow-cyan-500/10 active:scale-[0.99] flex items-center justify-center gap-2 ${
+                    isLoading ? 'opacity-70 cursor-not-allowed' : ''
+                  }`}
+                >
+                  {isLoading && isRegistering ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4 text-slate-950" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Verifying Email...
+                    </>
+                  ) : (
+                    isRegistering ? 'Register' : 'Login'
+                  )}
                 </button>
+                {/* ahnaf end */}
               </div>
 
             </form>
