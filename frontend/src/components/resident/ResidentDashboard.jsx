@@ -3,6 +3,14 @@ import { PreviewMap, FullMap, isInsideBangladesh } from './ResidentMapOverview';
 import { ResidentAnnouncementList } from './ResidentAnnouncementList';
 import { ResidentRegistryList } from './ResidentRegistryList';
 import { ResidentFAQView } from './ResidentFAQView';
+import ComplaintForm from './ComplaintForm';
+import TrackComplaint from './TrackComplaint';
+import ChatbotPage from './ChatbotPage';
+import { OutageHeatmap } from './OutageHeatmap';
+//Turan: Resident-Technician Chat Panel Import (Chat Feature)
+import ChatPanel from '../ChatPanel';
+//Turan End
+
 //Turan: Resident Subscription Modal Import
 import ResidentSubscriptionModal from './ResidentSubscriptionModal';
 //Turan End
@@ -471,6 +479,16 @@ function ResidentDashboard({ user, onLogout }) {
                         REMOVE REPORT
                       </button>
                     )}
+
+                    {/* Turan: Chat with assigned technician — only show to reporter once technician is assigned (Chat Feature) */}
+                    {selectedIncident.reporterId === user.id && selectedIncident.assignedTo && (
+                      <ChatPanel
+                        outageId={selectedIncident._id}
+                        currentUser={user}
+                        otherName={selectedIncident.assignedToName || 'Technician'}
+                      />
+                    )}
+                    {/* Turan End */}
                   </div>
                 ) : (
                   <p className="text-xs text-slate-500">Select a pin to view details, or click the map to file a report.</p>

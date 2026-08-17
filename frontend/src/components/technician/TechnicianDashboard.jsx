@@ -449,6 +449,9 @@ function TechnicianDashboard({ user, onLogout }) {
                   selectedIncident={selectedIncident}
                   setSelectedIncident={setSelectedIncident}
                   onMarkResolved={handleMarkResolved}
+                  // Turan: Pass current user to TaskPanel for chat identification (Chat Feature)
+                  currentUser={user}
+                  // Turan End
                 />
               </div>
             </div>

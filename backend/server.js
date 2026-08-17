@@ -170,6 +170,12 @@ app.get('/api/transactions/resident/:userId', getUserSubscription);
 // Turan End
 
 
+// Turan: Resident-Technician Chat Routes (Chat Feature)
+const { getMessages, sendMessage } = require('./controllers/chatController');
+app.get('/api/chat/:outageId', getMessages);
+app.post('/api/chat/:outageId', sendMessage);
+// Turan End
+
 // --- STARTUP BOUNDARY ROUTINE ---
 // Turan: Port configured to 1235 (Student ID: 22201235) for API Assignment
 const PORT = 5000;
