@@ -1,10 +1,15 @@
+require('dotenv').config({ override: true });
 const express = require('express');
 const cors = require('cors');
 const connectDatabase = require('./db');
 
 // Import controllers
 const { registerUser, loginUser, updateProfile, getTechnicians } = require('./controllers/authController');
+<<<<<<< HEAD
 const { getActiveOutages, createOutageReport, deleteOutageReport, assignTechnician, deleteOutage, getAssignedTasks, resolveOutage, getAllOutages, upvoteOutage, submitOutageReview, /* ahnaf start */ updateOutageStatus /* ahnaf end */ } = require('./controllers/outageController');
+=======
+const { getActiveOutages, createOutageReport, deleteOutageReport, assignTechnician, deleteOutage, getAssignedTasks, resolveOutage, getAllOutages, upvoteOutage, /* ahnaf start */ updateOutageStatus, /* ahnaf end */ /* Turan: Location Feature */ updateTechnicianLocation /* Turan End */ } = require('./controllers/outageController');
+>>>>>>> 88069d4a15da55eac10cf5ed04c9bc2b35760d7e
 const { generateVerificationId, listVerificationIds, revokeVerificationId } = require('./controllers/verificationController');
 const { getAllForumPosts, createForumPost, answerForumPost, updateForumPost, deleteForumPost, updateForumReply, deleteForumReply } = require('./controllers/forumController');
 const { getAllFaqs, createFaq, updateFaq, deleteFaq, getAllCategories, createCategory, deleteCategory } = require('./controllers/faqController');
@@ -48,6 +53,12 @@ app.delete('/api/verification/revoke/:id', revokeVerificationId);
 //--- Technician Route Endpoints ---
 app.get('/api/outages/assigned/:technicianId', getAssignedTasks);
 app.post('/api/outages/resolve/:id', resolveOutage);
+// ahnaf start
+app.patch('/api/outages/status/:id', updateOutageStatus);
+// ahnaf end
+// Turan: Live Technician Location Route (Location Feature)
+app.patch('/api/outages/location/:id', updateTechnicianLocation);
+// Turan End
 
 // ahnaf start
 // --- Technician Live Crew Status Update (ON_WAY / ON_SITE / RESOLVED) ---
@@ -221,6 +232,12 @@ app.get('/api/transactions/auditor/export', exportTransactionsCSV);
 app.get('/api/transactions/resident/:userId', getUserSubscription);
 // Turan End
 
+
+// Turan: Resident-Technician Chat Routes (Chat Feature)
+const { getMessages, sendMessage } = require('./controllers/chatController');
+app.get('/api/chat/:outageId', getMessages);
+app.post('/api/chat/:outageId', sendMessage);
+// Turan End
 
 // --- STARTUP BOUNDARY ROUTINE ---
 // Turan: Port configured to 1235 (Student ID: 22201235) for API Assignment

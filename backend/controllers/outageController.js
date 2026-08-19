@@ -250,6 +250,7 @@ const updateOutageStatus = async (req, res) => {
 };
 // ahnaf end
 
+<<<<<<< HEAD
 // --- SUBMIT RESIDENT REVIEW FOR A RESOLVED OUTAGE ---
 const submitOutageReview = async (req, res) => {
   try {
@@ -295,6 +296,45 @@ const submitOutageReview = async (req, res) => {
     return res.status(500).json({ error: 'Internal error submitting review.' });
   }
 };
+=======
+// Turan: Update live technician GPS coordinates (Location Feature)
+const updateTechnicianLocation = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { latitude, longitude } = req.body;
+
+    if (latitude === undefined || longitude === undefined) {
+      return res.status(400).json({ error: 'latitude and longitude are required.' });
+    }
+
+    const updated = await Outage.findByIdAndUpdate(
+      id,
+      {
+        technicianLocation: {
+          latitude: Number(latitude),
+          longitude: Number(longitude),
+          updatedAt: new Date()
+        }
+      },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ error: 'Outage report not found.' });
+    }
+
+    return res.status(200).json({
+      message: 'Technician location updated.',
+      report: updated
+    });
+
+  } catch (error) {
+    console.error('Technician location update error:', error);
+    return res.status(500).json({ error: 'Internal error updating technician location.' });
+  }
+};
+// Turan End
+>>>>>>> 88069d4a15da55eac10cf5ed04c9bc2b35760d7e
 
 module.exports = {
   getActiveOutages,
@@ -308,6 +348,9 @@ module.exports = {
   upvoteOutage,
   submitOutageReview,
   // ahnaf start
-  updateOutageStatus
+  updateOutageStatus,
   // ahnaf end
+  // Turan: Live Technician Location Tracking export (Location Feature)
+  updateTechnicianLocation
+  // Turan End
 };

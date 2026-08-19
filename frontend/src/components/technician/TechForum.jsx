@@ -3,14 +3,16 @@ import React from 'react';
 const STATUS_COLORS = {
   PENDING: '#f59e0b',
   ASSIGNED: '#0ea5e9',
+  ON_WAY: '#fb923c',
+  ON_SITE: '#a855f7',
   RESOLVED: '#22c55e',
   REPORTED: '#f59e0b',
 };
 
 export function TechForum({
   user,
-  tasks,
-  forumPosts,
+  tasks = [],
+  forumPosts = [],
   forumTitle, setForumTitle,
   forumCategory, setForumCategory,
   forumContent, setForumContent,
@@ -23,13 +25,15 @@ export function TechForum({
   editPostOutageId, setEditPostOutageId,
   editingReplyId, setEditingReplyId,
   editReplyContent, setEditReplyContent,
-  createForumPost,
-  updateForumPost,
-  deleteForumPost,
-  answerForumPost,
-  updateForumReply,
-  deleteForumReply
+  handleCreateForumPost,
+  handleUpdateForumPost,
+  handleDeleteForumPost,
+  handleCreateReply,
+  handleUpdateReply,
+  handleDeleteReply
 }) {
+
+  const currentUserId = user?.id || user?._id;
 
   // Unroll task dropdown selection options for creating a post
   const taskOptions = [];
@@ -78,7 +82,7 @@ export function TechForum({
                 <div className="flex gap-2">
                   <button
                     type="button"
-                    onClick={() => updateForumReply(reply._id)}
+                    onClick={() => handleUpdateReply(reply._id)}
                     className="px-2 py-0.5 bg-green-700 text-[10px] font-bold rounded"
                   >
                     SAVE
@@ -101,7 +105,7 @@ export function TechForum({
                       ({new Date(reply.createdAt).toLocaleDateString()})
                     </span>
                   </span>
-                  {reply.authorId === user.id && (
+                  {reply.authorId === currentUserId && (
                     <div className="flex gap-2 text-[9px]">
                       <button 
                         type="button"
@@ -115,7 +119,7 @@ export function TechForum({
                       </button>
                       <button 
                         type="button"
-                        onClick={() => deleteForumReply(reply._id)} 
+                        onClick={() => handleDeleteReply(reply._id)} 
                         className="text-red-400 hover:underline"
                       >
                         DELETE
@@ -171,7 +175,7 @@ export function TechForum({
             <div className="flex gap-2">
               <button 
                 type="button"
-                onClick={() => updateForumPost(post._id)}
+                onClick={() => handleUpdateForumPost(post._id)}
                 className="px-3 py-1 bg-green-700 text-xs font-bold rounded hover:bg-green-600"
               >
                 SAVE MODIFICATIONS
@@ -195,7 +199,7 @@ export function TechForum({
                 <h4 className="text-base font-bold mt-1.5">{post.title}</h4>
               </div>
               
-              {post.askedById === user.id && (
+              {post.askedById === currentUserId && (
                 <div className="flex gap-2">
                   <button
                     type="button"
@@ -204,7 +208,7 @@ export function TechForum({
                       setEditPostTitle(post.title);
                       setEditPostCategory(post.category);
                       setEditPostContent(post.questionContent);
-                      setEditPostOutageId(post.outageId ? post.outageId._id : '');
+                      setEditPostOutageId(post.outageId?._id || post.outageId || '');
                     }}
                     className="text-[10px] text-amber-500 hover:underline bg-slate-900 px-2 py-1 rounded border border-slate-800"
                   >
@@ -212,7 +216,7 @@ export function TechForum({
                   </button>
                   <button
                     type="button"
-                    onClick={() => deleteForumPost(post._id)}
+                    onClick={() => handleDeleteForumPost(post._id)}
                     className="text-[10px] text-red-400 hover:underline bg-slate-900 px-2 py-1 rounded border border-slate-800"
                   >
                     DELETE
@@ -235,7 +239,9 @@ export function TechForum({
                 <div>
                   <span className="text-[9px] font-black text-cyan-400 uppercase tracking-widest block">Linked Live Outage Map Incident:</span>
                   <strong className="text-slate-200">{post.outageId.locationName || 'Unknown Location'}</strong>
-                  <span className="text-slate-400 block text-[10px] italic">"{post.outageId.description}"</span>
+                  {post.outageId.description && (
+                    <span className="text-slate-400 block text-[10px] italic">"{post.outageId.description}"</span>
+                  )}
                 </div>
                 <span 
                   className="text-[9px] font-bold px-2 py-0.5 rounded"
@@ -265,7 +271,7 @@ export function TechForum({
             />
             <button
               type="button"
-              onClick={() => answerForumPost(post._id)}
+              onClick={() => handleCreateReply(post._id)}
               className="px-4 bg-slate-800 hover:bg-cyan-700 hover:text-white border border-slate-700 text-slate-300 text-xs font-bold rounded transition-all"
             >
               SUBMIT
@@ -280,7 +286,7 @@ export function TechForum({
   return (
     <div className="flex-1 overflow-y-auto p-6 space-y-6">
       
-      <form onSubmit={createForumPost} className="bg-slate-950 border border-slate-800 p-5 rounded-2xl space-y-4">
+      <form onSubmit={handleCreateForumPost} className="bg-slate-950 border border-slate-800 p-5 rounded-2xl space-y-4">
         <h3 className="text-sm font-black text-cyan-400 uppercase tracking-wider">Ask Fellow Technicians For Help</h3>
         
         <div className="grid grid-cols-2 gap-4">

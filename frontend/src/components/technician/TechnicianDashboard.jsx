@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PreviewMap, TechFullMap } from './TechMapOverview';
 import { TaskPanel, TechTaskList } from './TechTaskList';
 import { TechForum } from './TechForum';
@@ -42,6 +42,75 @@ function TechnicianDashboard({ user, onLogout }) {
 
   const [editingReplyId, setEditingReplyId] = useState(null);
   const [editReplyContent, setEditReplyContent] = useState('');
+
+  // Turan: Location broadcaster state and ref (Location Feature)
+  const locationIntervalRef = useRef(null);
+  const [isTracking, setIsTracking] = useState(false);
+
+  const stopLocationBroadcast = () => {
+    if (locationIntervalRef.current) {
+      clearInterval(locationIntervalRef.current);
+      locationIntervalRef.current = null;
+    }
+    setIsTracking(false);
+  };
+
+  const startLocationBroadcast = (outageId, destLat, destLng) => {
+    stopLocationBroadcast();
+    setIsTracking(true);
+
+    const sendLocation = (lat, lng) => {
+      fetch(`${API}/api/outages/location/${outageId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ latitude: lat, longitude: lng }),
+      }).catch((err) => console.error('Location broadcast error:', err));
+    };
+
+    // Try real GPS first, fall back to simulated approach
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          let lat = pos.coords.latitude;
+          let lng = pos.coords.longitude;
+          sendLocation(lat, lng);
+          // Step simulation: inch toward incident every 4s
+          locationIntervalRef.current = setInterval(() => {
+            lat = lat + (destLat - lat) * 0.08;
+            lng = lng + (destLng - lng) * 0.08;
+            sendLocation(lat, lng);
+          }, 4000);
+        },
+        () => {
+          // GPS denied — simulate from offset near destination
+          let lat = destLat - 0.025 + Math.random() * 0.01;
+          let lng = destLng - 0.025 + Math.random() * 0.01;
+          sendLocation(lat, lng);
+          locationIntervalRef.current = setInterval(() => {
+            lat = lat + (destLat - lat) * 0.1;
+            lng = lng + (destLng - lng) * 0.1;
+            sendLocation(lat, lng);
+          }, 4000);
+        }
+      );
+    } else {
+      // No geolocation API — pure simulation
+      let lat = destLat - 0.02;
+      let lng = destLng - 0.02;
+      sendLocation(lat, lng);
+      locationIntervalRef.current = setInterval(() => {
+        lat = lat + (destLat - lat) * 0.1;
+        lng = lng + (destLng - lng) * 0.1;
+        sendLocation(lat, lng);
+      }, 4000);
+    }
+  };
+
+  // Stop tracking on unmount
+  useEffect(() => {
+    return () => stopLocationBroadcast();
+  }, []);
+  // Turan End
 
   const fetchTasks = () => {
     console.log('FETCHING TASKS FOR USER ID:', user.id);
@@ -103,6 +172,13 @@ function TechnicianDashboard({ user, onLogout }) {
             prev && prev._id === id ? data.report : prev
           );
           fetchTasks();
+          // Turan: Start/stop location broadcast based on status transition (Location Feature)
+          if (newStatus === 'ON_WAY') {
+            startLocationBroadcast(id, data.report.latitude, data.report.longitude);
+          } else {
+            stopLocationBroadcast();
+          }
+          // Turan End
         }
       })
       .catch((err) => console.error('Status update error:', err));
@@ -376,6 +452,35 @@ function TechnicianDashboard({ user, onLogout }) {
           </div>
         </div>
 
+        {/* Turan: Live tracking active indicator badge (Location Feature) */}
+        {isTracking && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '10px 14px',
+            borderRadius: '12px',
+            background: 'rgba(251,146,60,0.12)',
+            border: '1px solid rgba(251,146,60,0.4)',
+            fontSize: '11px',
+            fontWeight: 800,
+            color: '#fb923c',
+            letterSpacing: '0.05em',
+          }}>
+            <span style={{
+              width: '8px', height: '8px', borderRadius: '50%',
+              background: '#fb923c',
+              boxShadow: '0 0 0 0 rgba(251,146,60,0.6)',
+              animation: 'locationPulse 1.2s infinite',
+              display: 'inline-block',
+              flexShrink: 0,
+            }}></span>
+            🚗 LIVE LOCATION BROADCASTING
+            <style>{`@keyframes locationPulse { 0%{box-shadow:0 0 0 0 rgba(251,146,60,0.6)} 70%{box-shadow:0 0 0 8px rgba(251,146,60,0)} 100%{box-shadow:0 0 0 0 rgba(251,146,60,0)} }`}</style>
+          </div>
+        )}
+        {/* Turan End */}
+
         <button
           onClick={onLogout}
           className="w-full py-3 bg-slate-800 text-xs font-bold rounded-lg hover:bg-red-900/50 hover:text-red-400 transition-all"
@@ -484,6 +589,9 @@ function TechnicianDashboard({ user, onLogout }) {
                   selectedIncident={selectedIncident}
                   setSelectedIncident={setSelectedIncident}
                   onMarkResolved={handleMarkResolved}
+                  // Turan: Pass current user to TaskPanel for chat identification (Chat Feature)
+                  currentUser={user}
+                  // Turan End
                   // ahnaf start
                   onUpdateStatus={handleUpdateStatus}
                   // ahnaf end

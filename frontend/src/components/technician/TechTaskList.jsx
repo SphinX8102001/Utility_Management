@@ -1,4 +1,7 @@
 import React from 'react';
+// Turan: Resident-Technician Chat Panel Import (Chat Feature)
+import ChatPanel from '../ChatPanel';
+// Turan End
 
 const STATUS_COLORS = {
   PENDING: '#f59e0b',
@@ -106,7 +109,7 @@ function CrewStepper({ status }) {
 
 
 // ─── Task Detail Panel ────────────────────────────────────────────────────────
-export function TaskPanel({ selectedIncident, setSelectedIncident, onMarkResolved, onUpdateStatus }) {
+export function TaskPanel({ selectedIncident, setSelectedIncident, onMarkResolved, onUpdateStatus, currentUser }) {
   if (!selectedIncident) {
     return <p className="text-xs text-slate-500">Click a pin on the map to view task details.</p>;
   }
@@ -164,6 +167,16 @@ export function TaskPanel({ selectedIncident, setSelectedIncident, onMarkResolve
       >
         CLOSE
       </button>
+
+      {/* Turan: Chat with reporter — available to technician while task is active (Chat Feature) */}
+      {currentUser && selectedIncident.reporterName && (
+        <ChatPanel
+          outageId={selectedIncident._id}
+          currentUser={currentUser}
+          otherName={selectedIncident.reporterName}
+        />
+      )}
+      {/* Turan End */}
     </div>
   );
 }

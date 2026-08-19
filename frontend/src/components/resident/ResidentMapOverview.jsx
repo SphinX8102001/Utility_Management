@@ -49,6 +49,48 @@ const redIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
+// Turan: Animated pulsing vehicle marker icon for technician live tracking (Location Feature)
+const getTechnicianIcon = () => L.divIcon({
+  html: `
+    <div style="position:relative;width:42px;height:42px;display:flex;align-items:center;justify-content:center;">
+      <div style="
+        position:absolute;
+        width:42px;
+        height:42px;
+        border-radius:50%;
+        background:rgba(251,146,60,0.25);
+        border:2px solid #fb923c;
+        animation:techPulse 1.5s infinite;
+      "></div>
+      <div style="
+        position:relative;
+        width:28px;
+        height:28px;
+        border-radius:50%;
+        background:#fb923c;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:15px;
+        border:2px solid white;
+        box-shadow:0 0 8px rgba(251,146,60,0.8);
+        z-index:2;
+      ">🚗</div>
+    </div>
+    <style>
+      @keyframes techPulse {
+        0%   { transform: scale(1); opacity: 1; }
+        70%  { transform: scale(1.6); opacity: 0; }
+        100% { transform: scale(1); opacity: 0; }
+      }
+    </style>`,
+  className: 'tech-location-icon',
+  iconSize: [42, 42],
+  iconAnchor: [21, 21],
+  popupAnchor: [0, -22],
+});
+// Turan End
+
 const DHAKA_CENTER = [23.8103, 90.4125];
 const DEFAULT_ZOOM = 12;
 const FULL_MAP_ZOOM = 13;
@@ -138,6 +180,35 @@ export function PreviewMap({ outages, onClick }) {
     );
   }
 
+  // Turan: Render live technician vehicle markers for ON_WAY outages (Location Feature)
+  const techMarkers = [];
+  for (let i = 0; i < outages.length; i++) {
+    const item = outages[i];
+    if (
+      item.status === 'ON_WAY' &&
+      item.technicianLocation &&
+      item.technicianLocation.latitude &&
+      item.technicianLocation.longitude
+    ) {
+      techMarkers.push(
+        <Marker
+          key={`tech-${item._id}`}
+          position={[item.technicianLocation.latitude, item.technicianLocation.longitude]}
+          icon={getTechnicianIcon()}
+        >
+          <Popup>
+            <div style={{ fontFamily: 'sans-serif' }}>
+              <strong style={{ color: '#fb923c' }}>🚗 Crew En Route</strong><br />
+              <span style={{ fontSize: '11px' }}>Heading to: {item.locationName}</span><br />
+              <span style={{ fontSize: '10px', color: '#777' }}>Assigned: {item.assignedToName}</span>
+            </div>
+          </Popup>
+        </Marker>
+      );
+    }
+  }
+  // Turan End
+
   return (
     <div
       onClick={onClick}
@@ -158,6 +229,9 @@ export function PreviewMap({ outages, onClick }) {
           attribution="&copy; OpenStreetMap contributors"
         />
         {renderedMarkers}
+        {/* Turan: Render technician vehicle markers (Location Feature) */}
+        {techMarkers}
+        {/* Turan End */}
       </MapContainer>
     </div>
   );
@@ -181,45 +255,35 @@ export function FullMap({ outages, onMapClick, clickedPosition, setSelectedIncid
     layer.options.interactive = false;
   };
 
-  const activeMarkers = [];
-
+  // Turan: Render live technician vehicle markers for ON_WAY outages in FullMap (Location Feature)
+  const techMarkersFullMap = [];
   for (let i = 0; i < outages.length; i++) {
     const item = outages[i];
-    activeMarkers.push(
-      <Marker
-        key={item._id}
-        position={[item.latitude, item.longitude]}
-        icon={getIcon(item.utilityType)}
-        eventHandlers={{
-          click: () => {
-            setSelectedIncident(item);
-          },
-        }}
-      >
-        <Popup>
-          <div style={{ fontFamily: 'sans-serif', minWidth: '150px' }}>
-            <strong style={{ fontSize: '14px', color: '#0ea5e9' }}>{item.utilityType}</strong>
-            <br />
-            <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{item.locationName}</span>
-            <br />
-            <span style={{ fontSize: '11px', color: '#555' }}>{item.description}</span>
-            <br />
-            <span style={{ fontSize: '10px', fontStyle: 'italic', color: '#777' }}>Reported by: {item.reporterName}</span>
-            <br />
-            <span style={{ fontSize: '11px', color: '#059669', fontWeight: 'bold' }}>
-              Confirmed by {item.upvotes || 0} residents
-            </span>
-            {/* ahnaf start */}
-            <br />
-            <span style={{ fontSize: '11px', fontWeight: 'bold', color: STATUS_COLORS[item.status] || '#aaa' }}>
-              ● {STATUS_LABELS[item.status] || item.status}
-            </span>
-            {/* ahnaf end */}
-          </div>
-        </Popup>
-      </Marker>
-    );
+    if (
+      item.status === 'ON_WAY' &&
+      item.technicianLocation &&
+      item.technicianLocation.latitude &&
+      item.technicianLocation.longitude
+    ) {
+      techMarkersFullMap.push(
+        <Marker
+          key={`tech-full-${item._id}`}
+          position={[item.technicianLocation.latitude, item.technicianLocation.longitude]}
+          icon={getTechnicianIcon()}
+        >
+          <Popup>
+            <div style={{ fontFamily: 'sans-serif', minWidth: '150px' }}>
+              <strong style={{ color: '#fb923c', fontSize: '14px' }}>🚗 Crew On The Way</strong><br />
+              <span style={{ fontSize: '12px', fontWeight: 'bold' }}>→ {item.locationName}</span><br />
+              <span style={{ fontSize: '11px', color: '#555' }}>Technician: {item.assignedToName}</span><br />
+              <span style={{ fontSize: '10px', color: '#fb923c', fontWeight: 'bold' }}>● Live Location</span>
+            </div>
+          </Popup>
+        </Marker>
+      );
+    }
   }
+  // Turan End
 
   return (
     <MapContainer
@@ -241,7 +305,37 @@ export function FullMap({ outages, onMapClick, clickedPosition, setSelectedIncid
 
       <ClickHandler onMapClick={onMapClick} />
 
-      {activeMarkers}
+      {/* Outage incident markers */}
+      {outages.map((item) => (
+        <Marker
+          key={item._id}
+          position={[item.latitude, item.longitude]}
+          icon={getIcon(item.utilityType)}
+          eventHandlers={{ click: () => setSelectedIncident(item) }}
+        >
+          <Popup>
+            <div style={{ fontFamily: 'sans-serif', minWidth: '150px' }}>
+              <strong style={{ fontSize: '14px', color: '#0ea5e9' }}>{item.utilityType}</strong><br />
+              <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{item.locationName}</span><br />
+              <span style={{ fontSize: '11px', color: '#555' }}>{item.description}</span><br />
+              <span style={{ fontSize: '10px', fontStyle: 'italic', color: '#777' }}>Reported by: {item.reporterName}</span><br />
+              <span style={{ fontSize: '11px', color: '#059669', fontWeight: 'bold' }}>
+                Confirmed by {item.upvotes || 0} residents
+              </span>
+              {/* ahnaf start */}
+              <br />
+              <span style={{ fontSize: '11px', fontWeight: 'bold', color: STATUS_COLORS[item.status] || '#aaa' }}>
+                ● {STATUS_LABELS[item.status] || item.status}
+              </span>
+              {/* ahnaf end */}
+            </div>
+          </Popup>
+        </Marker>
+      ))}
+
+      {/* Turan: Technician live vehicle markers in full map view (Location Feature) */}
+      {techMarkersFullMap}
+      {/* Turan End */}
 
       {clickedPosition && (
         <Marker position={clickedPosition} icon={redIcon}>

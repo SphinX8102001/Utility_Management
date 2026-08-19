@@ -15,9 +15,19 @@ const outageSchema = new mongoose.Schema({
   assignedToName: { type: String, default: '' },  
   upvotes: { type: Number, default: 0 },
   upvotedBy: { type: [String], default: [] },
+<<<<<<< HEAD
   // --- Resident review left by reporter after outage is resolved ---
   userRating: { type: Number, default: 0, min: 0, max: 5 },
   userComment: { type: String, default: '' },
+=======
+  // Turan: Live Technician Location Tracking (Location Feature)
+  technicianLocation: {
+    latitude: { type: Number, default: null },
+    longitude: { type: Number, default: null },
+    updatedAt: { type: Date, default: null }
+  },
+  // Turan End
+>>>>>>> 88069d4a15da55eac10cf5ed04c9bc2b35760d7e
   createdAt: { type: Date, default: Date.now }
 });
 
