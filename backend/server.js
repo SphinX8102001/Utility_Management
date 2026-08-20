@@ -1,10 +1,11 @@
+require('dotenv').config({ override: true });
 const express = require('express');
 const cors = require('cors');
 const connectDatabase = require('./db');
 
 // Import controllers
 const { registerUser, loginUser, updateProfile, getTechnicians } = require('./controllers/authController');
-const { getActiveOutages, createOutageReport, deleteOutageReport, assignTechnician, deleteOutage, getAssignedTasks, resolveOutage, getAllOutages, upvoteOutage, /* ahnaf start */ updateOutageStatus /* ahnaf end */ } = require('./controllers/outageController');
+const { getActiveOutages, createOutageReport, deleteOutageReport, assignTechnician, deleteOutage, getAssignedTasks, resolveOutage, getAllOutages, upvoteOutage, /* ahnaf start */ updateOutageStatus, /* ahnaf end */ /* Turan: Location Feature */ updateTechnicianLocation /* Turan End */ } = require('./controllers/outageController');
 const { generateVerificationId, listVerificationIds, revokeVerificationId } = require('./controllers/verificationController');
 const { getAllForumPosts, createForumPost, answerForumPost, updateForumPost, deleteForumPost, updateForumReply, deleteForumReply } = require('./controllers/forumController');
 const { getAllFaqs, createFaq, updateFaq, deleteFaq, getAllCategories, createCategory, deleteCategory } = require('./controllers/faqController');
@@ -27,13 +28,14 @@ app.post('/api/auth/register', registerUser);
 app.post('/api/auth/login', loginUser);
 app.post('/api/user/update', updateProfile);
 
-// --- RESIDENT MAP ROUTE ENDPOINTS ---
 app.get('/api/outages/active', getActiveOutages);
 app.post('/api/outages/report', createOutageReport);
 app.delete('/api/outages/delete/:id', deleteOutageReport);
-app.post('/api/outages/upvote/:id', upvoteOutage);
 
-// --- ADMIN ROUTE ENDPOINTS ---
+// Turan: Community Upvote System (Feature 1)
+app.post('/api/outages/upvote/:id', upvoteOutage);
+// Turan End
+
 app.get('/api/users/technicians', getTechnicians);
 app.post('/api/outages/assign', assignTechnician);
 app.delete('/api/outages/admin/delete/:id', deleteOutage);
@@ -50,6 +52,9 @@ app.post('/api/outages/resolve/:id', resolveOutage);
 // ahnaf start
 app.patch('/api/outages/status/:id', updateOutageStatus);
 // ahnaf end
+// Turan: Live Technician Location Route (Location Feature)
+app.patch('/api/outages/location/:id', updateTechnicianLocation);
+// Turan End
 
 // --- TECHNICIAN FORUM ROUTE ENDPOINTS ---
 app.get('/api/forum/all', getAllForumPosts);
@@ -98,7 +103,49 @@ app.post('/api/banner/post', async (req, res) => {
   const { message } = req.body;
   try {
     if (!message) return res.status(400).json({ message: 'Message is required' });
+    //NUSFAT: Removed auto-deactivate so old banners stay active
     const banner = await Banner.create({ message });
+
+    //NUSFAT: Send email to all registered residents
+    try {
+      const nodemailer = require('nodemailer');
+      const User = require('./models/user');
+
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS
+        }
+      });
+
+      const residents = await User.find({ role: 'resident' }, 'email name');
+
+      for (const resident of residents) {
+        await transporter.sendMail({
+          from: `"Utilix Emergency Alert" <${process.env.EMAIL_USER}>`,
+          to: resident.email,
+          subject: '🚨 Emergency Utility Announcement',
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0f172a; color: white; padding: 30px; border-radius: 12px;">
+              <h1 style="color: #ef4444; margin-bottom: 10px;">🚨 Emergency Announcement</h1>
+              <p style="color: #94a3b8; font-size: 14px;">Dear ${resident.name},</p>
+              <div style="background: #1e293b; border-left: 4px solid #ef4444; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <p style="color: white; font-size: 16px; margin: 0;">${message}</p>
+              </div>
+              <p style="color: #94a3b8; font-size: 12px;">This is an automated emergency alert from Utilix Management System.</p>
+              <p style="color: #94a3b8; font-size: 12px;">Please log in to your account for more details and updates.</p>
+            </div>
+          `
+        });
+      }
+      console.log(`Emergency email sent to ${residents.length} residents`);
+    } catch (emailError) {
+      console.error('Email sending failed:', emailError.message);
+
+    }
+
+
     res.status(201).json(banner);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -174,8 +221,16 @@ app.get('/api/transactions/resident/:userId', getUserSubscription);
 // Turan End
 
 
+// Turan: Resident-Technician Chat Routes (Chat Feature)
+const { getMessages, sendMessage } = require('./controllers/chatController');
+app.get('/api/chat/:outageId', getMessages);
+app.post('/api/chat/:outageId', sendMessage);
+// Turan End
+
 // --- STARTUP BOUNDARY ROUTINE ---
+// Turan: Port configured to 1235 (Student ID: 22201235) for API Assignment
 const PORT = 5000;
 app.listen(PORT, () => {
   console.log('Utilix Secure Network Server active and executing on Port: ' + PORT);
 });
+// Turan End

@@ -1,5 +1,8 @@
 const User = require('../models/user');
 const VerificationId = require('../models/VerificationId');
+// ahnaf start
+const { verifyEmail } = require('../utils/emailVerifier');
+// ahnaf end
 
 // --- USER REGISTRATION LOGIC ROUTINE ---
 const registerUser = async (req, res) => {
@@ -10,6 +13,20 @@ const registerUser = async (req, res) => {
     if (!name || !email || !phone || !username || !password || role === undefined) {
       return res.status(400).json({ error: 'All primary demographic registration fields are mandatory.' });
     }
+
+    // ahnaf start
+    // --- STEP 1b: GMASS EMAIL VERIFICATION (syntax + DNS MX or live API) ---
+    const emailCheckResult = await verifyEmail(email);
+    if (emailCheckResult.status === 'Invalid') {
+      return res.status(400).json({ error: 'Email Verification Failed: ' + emailCheckResult.message });
+    }
+    if (emailCheckResult.status === 'NoMxRecord') {
+      return res.status(400).json({ error: 'Email Verification Failed: This email domain does not appear to be a real mail server. Please use a valid email address.' });
+    }
+    if (emailCheckResult.status === 'ConnectionFail') {
+      return res.status(503).json({ error: 'Email Verification Unavailable: Could not verify your email address at this time. Please try again shortly.' });
+    }
+    // ahnaf end
 
     // --- STEP 2: UNIQUE USERNAME ENFORCEMENT CHECK ---
     const usernameTaken = await User.findOne({ username: username });

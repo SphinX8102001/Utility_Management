@@ -14,15 +14,15 @@ const getActiveOutages = async (req, res) => {
 // --- SUBMIT NEW OUTAGE COMPLAINT LOGIC ROUTINE (FR-02) ---
 const createOutageReport = async (req, res) => {
   try {
-    const { 
-      utilityType, 
-      locationName, 
-      latitude, 
-      longitude, 
-      description, 
-      estimatedRestoration, 
-      reporterId, 
-      reporterName 
+    const {
+      utilityType,
+      locationName,
+      latitude,
+      longitude,
+      description,
+      estimatedRestoration,
+      reporterId,
+      reporterName
     } = req.body;
 
     if (!utilityType || !locationName || !latitude || !longitude || !description || !reporterId || !reporterName) {
@@ -159,6 +159,7 @@ const getAllOutages = async (req, res) => {
   }
 };
 
+// Turan: Community Upvote Outage Controller
 const upvoteOutage = async (req, res) => {
   try {
     const { id } = req.params;
@@ -212,7 +213,7 @@ const upvoteOutage = async (req, res) => {
     return res.status(500).json({ error: 'Internal server error processing upvote.' });
   }
 };
-
+//Turan End
 // ahnaf start
 const VALID_CREW_STATUSES = ['ON_WAY', 'ON_SITE', 'RESOLVED'];
 
@@ -249,6 +250,44 @@ const updateOutageStatus = async (req, res) => {
 };
 // ahnaf end
 
+// Turan: Update live technician GPS coordinates (Location Feature)
+const updateTechnicianLocation = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { latitude, longitude } = req.body;
+
+    if (latitude === undefined || longitude === undefined) {
+      return res.status(400).json({ error: 'latitude and longitude are required.' });
+    }
+
+    const updated = await Outage.findByIdAndUpdate(
+      id,
+      {
+        technicianLocation: {
+          latitude: Number(latitude),
+          longitude: Number(longitude),
+          updatedAt: new Date()
+        }
+      },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ error: 'Outage report not found.' });
+    }
+
+    return res.status(200).json({
+      message: 'Technician location updated.',
+      report: updated
+    });
+
+  } catch (error) {
+    console.error('Technician location update error:', error);
+    return res.status(500).json({ error: 'Internal error updating technician location.' });
+  }
+};
+// Turan End
+
 module.exports = {
   getActiveOutages,
   createOutageReport,
@@ -260,6 +299,9 @@ module.exports = {
   getAllOutages,
   upvoteOutage,
   // ahnaf start
-  updateOutageStatus
+  updateOutageStatus,
   // ahnaf end
+  // Turan: Live Technician Location Tracking export (Location Feature)
+  updateTechnicianLocation
+  // Turan End
 };
