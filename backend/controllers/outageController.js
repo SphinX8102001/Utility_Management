@@ -250,7 +250,6 @@ const updateOutageStatus = async (req, res) => {
 };
 // ahnaf end
 
-<<<<<<< HEAD
 // --- SUBMIT RESIDENT REVIEW FOR A RESOLVED OUTAGE ---
 const submitOutageReview = async (req, res) => {
   try {
@@ -296,7 +295,7 @@ const submitOutageReview = async (req, res) => {
     return res.status(500).json({ error: 'Internal error submitting review.' });
   }
 };
-=======
+
 // Turan: Update live technician GPS coordinates (Location Feature)
 const updateTechnicianLocation = async (req, res) => {
   try {
@@ -334,7 +333,7 @@ const updateTechnicianLocation = async (req, res) => {
   }
 };
 // Turan End
->>>>>>> 88069d4a15da55eac10cf5ed04c9bc2b35760d7e
+
 
 module.exports = {
   getActiveOutages,
