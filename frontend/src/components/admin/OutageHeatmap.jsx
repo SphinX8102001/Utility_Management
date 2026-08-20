@@ -78,7 +78,7 @@ export function OutageHeatmap({ outages }) {
       const lat = parseFloat(item.latitude);
       const lng = parseFloat(item.longitude);
       if (isNaN(lat) || isNaN(lng)) continue;
-
+// finding coordinates in the grid coordinate system (not the actual map)
       let col = Math.floor((lng - BANGLADESH_BOUNDS.minLng) / lngStep);
       let row = Math.floor((lat - BANGLADESH_BOUNDS.minLat) / latStep);
       col = Math.max(0, Math.min(GRID_COLS - 1, col));
@@ -97,7 +97,7 @@ export function OutageHeatmap({ outages }) {
           ],
         };
       }
-      // weight by upvotes so heavily-confirmed outages contribute more heat
+      // weight by upvotes so heavily-confirmed outages contribute more heat, outage scores 1, upvotes add 0.5 each
       map[key].count += 1 + (item.upvotes || 0) * 0.5;
       map[key].items.push(item);
     }
@@ -150,6 +150,8 @@ export function OutageHeatmap({ outages }) {
             if (!color) return null;
 
             return (
+              //Component: Draws a colored box on the map over each populated cell's geographic bounds (bounds). The fill opacity dynamically scales with intensity (0.45 + ratio * 0.35).
+              // tooltip helps hovering over any rectangle displays a list of up to 4 outages reported in that specific cell zone.
               <Rectangle
                 key={`${cell.row}-${cell.col}`}
                 bounds={cell.bounds}

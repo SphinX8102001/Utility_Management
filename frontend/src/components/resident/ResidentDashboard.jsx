@@ -36,6 +36,10 @@ const STATUS_LABELS = {
 
 function ResidentDashboard({ user, onLogout }) {
   const [outages, setOutages] = useState([]);
+  // Full list (including RESOLVED) used for the Repair Registry / review flow.
+  // /api/outages/active deliberately excludes RESOLVED reports, so the registry
+  // needs its own fetch against /api/outages/all or resolved outages never appear.
+  const [allOutages, setAllOutages] = useState([]);
   const [selectedIncident, setSelectedIncident] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showFullMap, setShowFullMap] = useState(false);
@@ -109,10 +113,26 @@ function ResidentDashboard({ user, onLogout }) {
       });
   };
 
+  // Fetches EVERY outage report, including RESOLVED ones, for the Repair Registry.
+  const fetchAllOutages = () => {
+    fetch('http://localhost:5000/api/outages/all')
+      .then((res) => res.json())
+      .then((data) => {
+        setAllOutages(data);
+      })
+      .catch((err) => {
+        console.error('Error fetching full outage registry:', err);
+      });
+  };
+
   useEffect(() => {
     fetchMapMarkers();
+    fetchAllOutages();
     // ahnaf start
-    const pollInterval = setInterval(fetchMapMarkers, 5000);
+    const pollInterval = setInterval(() => {
+      fetchMapMarkers();
+      fetchAllOutages();
+    }, 5000);
     return () => clearInterval(pollInterval);
     // ahnaf end
   }, []);
@@ -157,6 +177,7 @@ function ResidentDashboard({ user, onLogout }) {
         setIsReporting(false);
         setClickedPosition(null);
         fetchMapMarkers();
+        fetchAllOutages();
       })
       .catch((err) => console.error('FETCH ERROR:', err));
   };
@@ -175,6 +196,7 @@ function ResidentDashboard({ user, onLogout }) {
         alert('Report removed.');
         setSelectedIncident(null);
         fetchMapMarkers();
+        fetchAllOutages();
       })
       .catch((err) => console.error('Delete failed:', err));
   };
@@ -190,11 +212,35 @@ function ResidentDashboard({ user, onLogout }) {
         if (status === 200) {
           setSelectedIncident(body.report);
           fetchMapMarkers();
+          fetchAllOutages();
         } else {
           alert(body.error || 'Failed to toggle outage upvote.');
         }
       })
       .catch((err) => console.error('Upvote error:', err));
+  };
+
+  // Submits a resident's post-repair review. Uses the full backend URL (matching
+  // every other fetch in this file) and syncs the updated report back into both
+  // the map list and the full registry list so "Your Review" renders immediately.
+  const handleSubmitReview = async (outageId, rating, comment) => {
+    const res = await fetch(`http://localhost:5000/api/outages/review/${outageId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: user.id, rating, comment })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to submit review.');
+
+    setAllOutages((prev) =>
+      prev.map((o) => (o._id === data.report._id ? data.report : o))
+    );
+    setOutages((prev) =>
+      prev.map((o) => (o._id === data.report._id ? data.report : o))
+    );
+    if (selectedIncident && selectedIncident._id === data.report._id) {
+      setSelectedIncident(data.report);
+    }
   };
 
   const updateProfile = (e) => {
@@ -586,9 +632,10 @@ function ResidentDashboard({ user, onLogout }) {
             </div>
           ) : (
             <ResidentRegistryList 
-              outages={outages} 
+              outages={allOutages} 
               user={user} 
-              handleDeleteReport={handleDeleteReport} 
+              handleDeleteReport={handleDeleteReport}
+              handleSubmitReview={handleSubmitReview}
             />
           )}
         </div>

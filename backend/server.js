@@ -5,7 +5,11 @@ const connectDatabase = require('./db');
 
 // Import controllers
 const { registerUser, loginUser, updateProfile, getTechnicians } = require('./controllers/authController');
+<<<<<<< HEAD
+const { getActiveOutages, createOutageReport, deleteOutageReport, assignTechnician, deleteOutage, getAssignedTasks, resolveOutage, getAllOutages, upvoteOutage, submitOutageReview, /* ahnaf start */ updateOutageStatus /* ahnaf end */ } = require('./controllers/outageController');
+=======
 const { getActiveOutages, createOutageReport, deleteOutageReport, assignTechnician, deleteOutage, getAssignedTasks, resolveOutage, getAllOutages, upvoteOutage, /* ahnaf start */ updateOutageStatus, /* ahnaf end */ /* Turan: Location Feature */ updateTechnicianLocation /* Turan End */ } = require('./controllers/outageController');
+>>>>>>> 88069d4a15da55eac10cf5ed04c9bc2b35760d7e
 const { generateVerificationId, listVerificationIds, revokeVerificationId } = require('./controllers/verificationController');
 const { getAllForumPosts, createForumPost, answerForumPost, updateForumPost, deleteForumPost, updateForumReply, deleteForumReply } = require('./controllers/forumController');
 const { getAllFaqs, createFaq, updateFaq, deleteFaq, getAllCategories, createCategory, deleteCategory } = require('./controllers/faqController');
@@ -55,6 +59,14 @@ app.patch('/api/outages/status/:id', updateOutageStatus);
 // Turan: Live Technician Location Route (Location Feature)
 app.patch('/api/outages/location/:id', updateTechnicianLocation);
 // Turan End
+
+// ahnaf start
+// --- Technician Live Crew Status Update (ON_WAY / ON_SITE / RESOLVED) ---
+app.patch('/api/outages/status/:id', updateOutageStatus);
+// ahnaf end
+
+// --- Resident Review Route Endpoint ---
+app.post('/api/outages/review/:id', submitOutageReview);
 
 // --- TECHNICIAN FORUM ROUTE ENDPOINTS ---
 app.get('/api/forum/all', getAllForumPosts);
