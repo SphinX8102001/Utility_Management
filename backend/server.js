@@ -238,9 +238,11 @@ app.post('/api/chat/:outageId', sendMessage);
 // Turan End
 
 // --- STARTUP BOUNDARY ROUTINE ---
-// Turan: Port configured to 1235 (Student ID: 22201235) for API Assignment
-const PORT = 5000;
-app.listen(PORT, () => {
-  console.log('Utilix Secure Network Server active and executing on Port: ' + PORT);
-});
-// Turan End
+const PORT = process.env.PORT || 5000;
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log('Utilix Secure Network Server active and executing on Port: ' + PORT);
+  });
+}
+
+module.exports = app;
