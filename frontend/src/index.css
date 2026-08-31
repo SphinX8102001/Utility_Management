@@ -1,7 +1,21 @@
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
 
+/* Leaflet map container styling */
 .leaflet-container {
   height: 100%;
   width: 100%;
+}
+
+/* Fix Leaflet missing default marker asset paths on Vite/Vercel build */
+.leaflet-default-icon-path {
+  background-image: url('https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png');
+}
+
+.leaflet-marker-icon {
+  content: url('https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png');
+}
+
+.leaflet-marker-shadow {
+  content: url('https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png');
 }
