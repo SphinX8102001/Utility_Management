@@ -5,6 +5,9 @@ import TechnicianDashboard from './components/technician/TechnicianDashboard';
 import WarehouseDashboard from './components/warehouse/WarehouseDashboard';
 import ResidentDashboard from './components/resident/ResidentDashboard';
 
+// Environment variable for Vercel backend deployment compatibility
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 function App() {
   // --- STATE MANAGEMENT ---
   const [isRegistering, setIsRegistering] = useState(false);
@@ -26,10 +29,8 @@ function App() {
   const [employeeId, setEmployeeId] = useState('');
   const [auditorId, setAuditorId] = useState('');
 
-  // ahnaf start
   // Loading state to show spinner while email verification + registration is processing
   const [isLoading, setIsLoading] = useState(false);
-  // ahnaf end
 
   // --- SUBMISSION HANDLER ---
   const handleAuthAction = async (e) => {
@@ -49,10 +50,8 @@ function App() {
       };
       
       try {
-        // ahnaf start
         setIsLoading(true);
-        // ahnaf end
-        const response = await fetch('http://localhost:5000/api/auth/register', {
+        const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -81,11 +80,9 @@ function App() {
       } catch (error) {
         console.error("Network interface connection failure:", error);
         alert("Could not establish a secure connection link with backend node.");
-      // ahnaf start
       } finally {
         setIsLoading(false);
       }
-      // ahnaf end
       
     } else {
       // --- REAL DATABASE LOGIN FLOW ---
@@ -95,7 +92,7 @@ function App() {
       };
       
       try {
-        const response = await fetch('http://localhost:5000/api/auth/login', {
+        const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -314,7 +311,6 @@ function App() {
 
               {/* Dynamic Submission Buttons */}
               <div className="pt-2">
-                {/* ahnaf start */}
                 <button
                   type="submit"
                   disabled={isLoading}
@@ -334,7 +330,6 @@ function App() {
                     isRegistering ? 'Register' : 'Login'
                   )}
                 </button>
-                {/* ahnaf end */}
               </div>
 
             </form>
