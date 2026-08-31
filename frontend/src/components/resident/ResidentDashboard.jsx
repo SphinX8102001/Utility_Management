@@ -15,6 +15,16 @@ import ChatPanel from '../ChatPanel';
 import ResidentSubscriptionModal from './ResidentSubscriptionModal';
 //Turan End
 
+// Ahnaf — Safety Guidance Banner for outage report form
+import SafetyGuidanceBanner from './SafetyGuidanceBanner';
+// Maps outage utility type -> a representative safety key for compact preview
+const OUTAGE_SAFETY_KEY = {
+  Electricity: 'DESCO_POWER_OUTAGE',
+  Water:       'WASA_NO_SUPPLY',
+  Gas:         'TITAS_GAS_LEAK',
+};
+// Ahnaf End
+
 // ahnaf start
 const STATUS_COLORS = {
   PENDING:  '#f59e0b',
@@ -560,6 +570,9 @@ function ResidentDashboard({ user, onLogout }) {
                       <option>Water</option>
                       <option>Gas</option>
                     </select>
+                    {/* Ahnaf — Compact safety hint based on selected utility type */}
+                    <SafetyGuidanceBanner issueKey={OUTAGE_SAFETY_KEY[utilityType] || null} compact />
+                    {/* Ahnaf End */}
                     <input required placeholder="Street Name" onChange={(e) => setLocationName(e.target.value)} className="w-full bg-slate-950 border p-2 mb-2 text-xs" />
                     <textarea required placeholder="Description" onChange={(e) => setDescription(e.target.value)} className="w-full bg-slate-950 border p-2 mb-2 text-xs h-24" />
                     <button type="submit" className="w-full py-2 bg-cyan-600 text-xs font-bold rounded">SUBMIT</button>
