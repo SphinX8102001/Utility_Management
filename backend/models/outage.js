@@ -27,6 +27,7 @@ const outageSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: null }
   },
   // Turan End
+
   createdAt: { type: Date, default: Date.now }
 });
 

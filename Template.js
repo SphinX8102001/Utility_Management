@@ -98,7 +98,7 @@ const { escalateOutage } = require('../controllers/outageController');
 
 // Definition: METHOD + PATH + CONTROLLER
 // POST endpoint expecting a URL parameter :id
-router.post('/escalate/:id', escalateOutage);
+router.post('/api/outage/escalate/:id', escalateOutage);
 
 module.exports = router;
 

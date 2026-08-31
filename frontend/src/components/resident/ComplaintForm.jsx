@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import SafetyGuidanceBanner from './SafetyGuidanceBanner';
-import { ISSUE_CATEGORIES } from '../../utils/safetyGuidanceData';
 
 //NUSFAT: Complaint Form Component for Residents - Module 3
 function ComplaintForm() {
@@ -9,7 +7,6 @@ function ComplaintForm() {
     phone: '',
     area: '',
     utilityType: '',
-    issueCategory: '',
     billAmount: '',
     complaintReason: ''
   });
@@ -39,7 +36,6 @@ function ComplaintForm() {
           phone: '',
           area: '',
           utilityType: '',
-          issueCategory: '',
           billAmount: '',
           complaintReason: ''
         });
@@ -132,9 +128,7 @@ function ComplaintForm() {
             <select
               name="utilityType"
               value={form.utilityType}
-              onChange={(e) => {
-                setForm({ ...form, utilityType: e.target.value, issueCategory: '' });
-              }}
+              onChange={handleChange}
               className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500/50"
             >
               <option value="">Select Utility Type</option>
@@ -143,28 +137,6 @@ function ComplaintForm() {
               <option value="TITAS">TITAS (Gas)</option>
             </select>
           </div>
-
-          {/* Ahnaf — Issue Category + Safety Guidance */}
-          {form.utilityType && (
-            <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                Issue / Problem Type
-              </label>
-              <select
-                name="issueCategory"
-                value={form.issueCategory}
-                onChange={handleChange}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500/50"
-              >
-                {(ISSUE_CATEGORIES[form.utilityType] || []).map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-              {/* Immediate safety guidance renders as soon as a category is picked */}
-              <SafetyGuidanceBanner issueKey={form.issueCategory || null} />
-            </div>
-          )}
-          {/* Ahnaf End */}
 
           <div>
             <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">

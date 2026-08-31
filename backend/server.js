@@ -6,9 +6,7 @@ const connectDatabase = require('./db');
 // Import controllers
 const { registerUser, loginUser, updateProfile, getTechnicians } = require('./controllers/authController');
 
-
-
-const { getActiveOutages, createOutageReport, deleteOutageReport, assignTechnician, deleteOutage, getAssignedTasks, resolveOutage, getAllOutages, upvoteOutage, /* ahnaf start */ updateOutageStatus, /* ahnaf end */ /* Turan: Location Feature */ updateTechnicianLocation /* Turan End */, submitOutageReview } = require('./controllers/outageController');
+const { getActiveOutages, createOutageReport, deleteOutageReport, assignTechnician, deleteOutage, getAssignedTasks, resolveOutage, getAllOutages, upvoteOutage, submitOutageReview, /* ahnaf start */ updateOutageStatus, /* ahnaf end */ /* Turan: Location Feature */ updateTechnicianLocation /* Turan End */ } = require('./controllers/outageController');
 
 const { generateVerificationId, listVerificationIds, revokeVerificationId } = require('./controllers/verificationController');
 const { getAllForumPosts, createForumPost, answerForumPost, updateForumPost, deleteForumPost, updateForumReply, deleteForumReply } = require('./controllers/forumController');
