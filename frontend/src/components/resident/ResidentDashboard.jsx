@@ -6,7 +6,6 @@ import { ResidentFAQView } from './ResidentFAQView';
 import ComplaintForm from './ComplaintForm';
 import TrackComplaint from './TrackComplaint';
 import ChatbotPage from './ChatbotPage';
-import { OutageHeatmap } from './OutageHeatmap';
 //Turan: Resident-Technician Chat Panel Import (Chat Feature)
 import ChatPanel from '../ChatPanel';
 //Turan End
@@ -17,7 +16,7 @@ import ResidentSubscriptionModal from './ResidentSubscriptionModal';
 
 // ahnaf start
 const STATUS_COLORS = {
-  PENDING:  '#f59e0b',
+  PENDING:   '#f59e0b',
   ASSIGNED: '#0ea5e9',
   ON_WAY:   '#fb923c',
   ON_SITE:  '#a855f7',
@@ -26,7 +25,7 @@ const STATUS_COLORS = {
 };
 
 const STATUS_LABELS = {
-  PENDING:  'Pending Review',
+  PENDING:   'Pending Review',
   ASSIGNED: 'Technician Assigned',
   ON_WAY:   'Crew On The Way 🚗',
   ON_SITE:  'Crew On Site 📍',
@@ -295,7 +294,6 @@ function ResidentDashboard({ user, onLogout }) {
 
   const navTabs = [
     { key: 'map', label: 'Monitor' },
-    { key: 'heatmap', label: 'Outage Heatmap' },
     { key: 'faq', label: 'FAQs & Help' },
     //NUSFAT: Complaint tabs - Module 3
     { key: 'complaint', label: 'Bill Complaint' },
@@ -440,15 +438,6 @@ function ResidentDashboard({ user, onLogout }) {
             </form>
           </div>
         
-        // Heatmap Tab Content
-        ) : activeTab === 'heatmap' ? (
-          <div className="flex-1 flex flex-col overflow-hidden">
-            ...
-           <div className="flex-1 overflow-y-auto">
-             <OutageHeatmap outages={outages} />
-            </div>
-          </div>
-
         //NUSFAT: Chatbot tab content - Module 4
         ) : activeTab === 'chatbot' ? (
           <div className="flex-1 flex flex-col overflow-hidden">
