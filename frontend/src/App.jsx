@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 // --- COMPONENT PORTAL LINKING ---
 import AdminDashboard from './components/admin/AdminDashboard';
 import TechnicianDashboard from './components/technician/TechnicianDashboard';
@@ -131,18 +132,38 @@ function App() {
   // --- DYNAMIC INFRASTRUCTURE PORTAL ROUTER ---
   if (currentUser !== null) {
     if (currentUser.role === 'admin') {
-      return <AdminDashboard user={currentUser} onLogout={handleLogout} />;
+      return (
+        <>
+          <AdminDashboard user={currentUser} onLogout={handleLogout} />
+          <SpeedInsights />
+        </>
+      );
     }
     
     if (currentUser.role === 'technician') {
-      return <TechnicianDashboard user={currentUser} onLogout={handleLogout} />;
+      return (
+        <>
+          <TechnicianDashboard user={currentUser} onLogout={handleLogout} />
+          <SpeedInsights />
+        </>
+      );
     }
     
     if (currentUser.role === 'warehouse') {
-      return <WarehouseDashboard user={currentUser} onLogout={handleLogout} />;
+      return (
+        <>
+          <WarehouseDashboard user={currentUser} onLogout={handleLogout} />
+          <SpeedInsights />
+        </>
+      );
     }
     
-    return <ResidentDashboard user={currentUser} onLogout={handleLogout} />;
+    return (
+      <>
+        <ResidentDashboard user={currentUser} onLogout={handleLogout} />
+        <SpeedInsights />
+      </>
+    );
   }
 
   // --- LOGIN / REGISTER GATEWAY VIEW ---
@@ -367,6 +388,7 @@ function App() {
         &copy; {new Date().getFullYear()} Utilix Management System. Infrastructure Node Secure.
       </footer>
 
+      <SpeedInsights />
     </div>
   );
 }
