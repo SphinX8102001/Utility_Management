@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 
 export function ResidentRegistryList({ outages, user, handleDeleteReport, handleSubmitReview }) {
   const renderedRegistryItems = [];
+/*  const alloutages = Arrays.copy(outages)
+  alloutages.sort(outages.upvotes) */
 
   for (let i = 0; i < outages.length; i++) {
-    const item = outages[i];
+    
+    const item = outages[i]; //should be alloutages
 
     renderedRegistryItems.push(
       <RegistryItem
