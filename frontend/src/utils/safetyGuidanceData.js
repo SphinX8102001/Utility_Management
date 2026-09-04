@@ -11,6 +11,7 @@ export const ISSUE_CATEGORIES = {
     { value: 'DESCO_METER_FAULT',     label: 'Meter Fault / Wrong Reading' },
     { value: 'DESCO_BILL_OVERCHARGE', label: 'Bill Overcharge / Dispute' },
     { value: 'DESCO_LOW_VOLTAGE',     label: 'Low Voltage / Frequent Fluctuation' },
+    { value: 'OTHER',                 label: 'Others' },
   ],
   WASA: [
     { value: '', label: 'Select Issue Type' },
@@ -20,6 +21,7 @@ export const ISSUE_CATEGORIES = {
     { value: 'WASA_LOW_PRESSURE',    label: 'Low Water Pressure' },
     { value: 'WASA_BILL_OVERCHARGE', label: 'Bill Overcharge / Dispute' },
     { value: 'WASA_FLOODING',        label: 'Road Flooding from Pipe' },
+    { value: 'OTHER',                 label: 'Others' },
   ],
   TITAS: [
     { value: '', label: 'Select Issue Type' },
@@ -28,6 +30,7 @@ export const ISSUE_CATEGORIES = {
     { value: 'TITAS_NO_SUPPLY',      label: 'No Gas Supply' },
     { value: 'TITAS_METER_FAULT',    label: 'Meter Fault / Wrong Reading' },
     { value: 'TITAS_BILL_OVERCHARGE',label: 'Bill Overcharge / Dispute' },
+    { value: 'OTHER',                 label: 'Others' },
   ],
 };
 

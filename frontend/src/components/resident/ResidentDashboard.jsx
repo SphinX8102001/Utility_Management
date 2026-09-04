@@ -9,6 +9,8 @@ import ChatbotPage from './ChatbotPage';
 //Turan: Resident-Technician Chat Panel Import (Chat Feature)
 import ChatPanel from '../ChatPanel';
 //Turan End
+import SafetyGuidanceBanner from './SafetyGuidanceBanner';
+import { ISSUE_CATEGORIES } from '../../utils/safetyGuidanceData';
 
 //Turan: Resident Subscription Modal Import
 import ResidentSubscriptionModal from './ResidentSubscriptionModal';
@@ -96,6 +98,7 @@ function ResidentDashboard({ user, onLogout }) {
 
   const [clickedPosition, setClickedPosition] = useState(null); 
   const [utilityType, setUtilityType] = useState('Electricity');
+  const [issueCategory, setIssueCategory] = useState('');
   const [locationName, setLocationName] = useState('');
   const [description, setDescription] = useState('');
 
@@ -544,11 +547,45 @@ function ResidentDashboard({ user, onLogout }) {
                   <form onSubmit={handleFormSubmit}>
                     <h4 className="text-xs font-bold text-cyan-400 mb-4">File Report</h4>
                     <input disabled value={clickedPosition ? `Lat: ${clickedPosition[0].toFixed(5)}, Lon: ${clickedPosition[1].toFixed(5)}` : ''} className="w-full bg-slate-950 border p-2 mb-2 text-xs" />
-                    <select onChange={(e) => setUtilityType(e.target.value)} className="w-full bg-slate-950 border p-2 mb-2 text-xs">
-                      <option>Electricity</option>
-                      <option>Water</option>
-                      <option>Gas</option>
+                    <select 
+                      onChange={(e) => {
+                        setUtilityType(e.target.value);
+                        setIssueCategory('');
+                      }} 
+                      className="w-full bg-slate-950 border p-2 mb-2 text-xs"
+                    >
+                      <option value="Electricity">Electricity (DESCO)</option>
+                      <option value="Water">Water (WASA)</option>
+                      <option value="Gas">Gas (TITAS)</option>
                     </select>
+
+                    {/* ahnaf: Specific Issue / Category Dropdown for Safety Guidance */}
+                    {(() => {
+                      const keyMap = { Electricity: 'DESCO', Water: 'WASA', Gas: 'TITAS' };
+                      const key = keyMap[utilityType] || 'DESCO';
+                      const categories = ISSUE_CATEGORIES[key] || [];
+                      return (
+                        <select
+                          value={issueCategory}
+                          onChange={(e) => setIssueCategory(e.target.value)}
+                          className="w-full bg-slate-950 border p-2 mb-2 text-xs text-amber-300 font-bold"
+                        >
+                          {categories.map((cat) => (
+                            <option key={cat.value} value={cat.value}>
+                              {cat.label}
+                            </option>
+                          ))}
+                        </select>
+                      );
+                    })()}
+
+                    {/* ahnaf: Emergency Safety Guidance Banner */}
+                    {issueCategory && (
+                      <div className="mb-3">
+                        <SafetyGuidanceBanner issueKey={issueCategory} compact={true} />
+                      </div>
+                    )}
+
                     <input required placeholder="Street Name" onChange={(e) => setLocationName(e.target.value)} className="w-full bg-slate-950 border p-2 mb-2 text-xs" />
                     <textarea required placeholder="Description" onChange={(e) => setDescription(e.target.value)} className="w-full bg-slate-950 border p-2 mb-2 text-xs h-24" />
                     <button type="submit" className="w-full py-2 bg-cyan-600 text-xs font-bold rounded">SUBMIT</button>
