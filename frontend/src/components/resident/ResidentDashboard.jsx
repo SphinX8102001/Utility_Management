@@ -542,7 +542,7 @@ function ResidentDashboard({ user, onLogout }) {
                 />
               </div>
 
-              <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+              <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 overflow-y-auto flex flex-col">
                 {isReporting ? (
                   <form onSubmit={handleFormSubmit}>
                     <h4 className="text-xs font-bold text-cyan-400 mb-4">File Report</h4>
